@@ -1,4 +1,4 @@
-#include "FilterDialog.hpp"
+#include "../incs/FilterDialog.hpp"
 
 #include <QCheckBox>
 #include <QLabel>

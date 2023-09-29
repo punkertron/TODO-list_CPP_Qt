@@ -6,6 +6,8 @@
 #include <QLineEdit>
 #include <QTextEdit>
 
+#include "../incs/Task.hpp"
+
 class AddTaskDialog : public QDialog
 {
     Q_OBJECT
@@ -16,9 +18,16 @@ class AddTaskDialog : public QDialog
     QCalendarWidget* m_Enter_deadline_date;
     // std::string m_Enter_task_status;
 
+   private slots:
+    void onOKButtonClicked();
+    void onCancelButtonClicked();
+
    public:
     AddTaskDialog(QWidget* parent = nullptr);
     ~AddTaskDialog() = default;
+
+   signals:
+    void userDataEntered(Task& task);
 };
 
 #endif  // ADD_TASK_DIALOG_HPP

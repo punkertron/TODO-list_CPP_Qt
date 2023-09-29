@@ -1,4 +1,4 @@
-#include "MainWindow.hpp"
+#include "../incs/MainWindow.hpp"
 
 #include <QDialog>
 #include <QMessageBox>
@@ -7,14 +7,42 @@
 
 // #include <iostream>
 
-#include "AddTaskDialog.hpp"
-#include "FilterDialog.hpp"
+#include <iostream>
+
+#include "../incs/AddTaskDialog.hpp"
+#include "../incs/FilterDialog.hpp"
+#include "../incs/Task.hpp"
+#include "../incs/TaskWidgwet.hpp"
+
+void MainWindow::onUserDataEntered(Task &task)
+{
+    dbTaskManager->addNewTask(task);
+
+    addTaskToScrollArea(dbTaskManager->getFrontTask());
+
+    // std::cout << task.m_name.toStdString() << std::endl;
+    // std::cout << task.m_description.toStdString() << std::endl;
+    // std::cout << task.m_deadline_date.toString().toStdString() << std::endl;
+}
 
 void MainWindow::addNewTask()
 {
-    // QMessageBox::information(nullptr, "Action Triggered", "MyAction was triggered!");
-    AddTaskDialog d;
-    int result = d.exec();
+    AddTaskDialog dialog;
+    Task task;
+
+    connect(&dialog, &AddTaskDialog::userDataEntered, this, &MainWindow::onUserDataEntered);
+
+    (void)dialog.exec();  // it doesn't matter what exec returns
+
+    // int result = dialog.exec();
+    // if (result == QDialog::Accepted)
+    // {
+    //     ;
+    // }
+    // if (result == QDialog::Rejected)
+    // {
+    //     std::cout << "Hello worodl" << std::endl;
+    // }
 }
 
 void MainWindow::filterTasks()
@@ -22,6 +50,7 @@ void MainWindow::filterTasks()
     // QMessageBox::information(nullptr, "Action Triggered", "MyAction was triggered!");
     FilterDialog d;
     int result = d.exec();
+    (void)result;
 }
 
 void MainWindow::setCommands(QWidget *parent)
@@ -59,25 +88,41 @@ void MainWindow::setCommands(QWidget *parent)
     connect(filterButton, &QPushButton::clicked, this, &MainWindow::filterTasks);
 }
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(DbTaskManager *dbTaskManager, QWidget *parent) : QMainWindow(parent), dbTaskManager(dbTaskManager)
 {
     setWindowTitle("TODO-list");
     setWindowIcon(QIcon("../icons/todo_logo.png"));
-    setMinimumSize(QSize(600, 700));
+    setMinimumSize(QSize(730, 800));
 
     QWidget *widget = new QWidget(this);
     setCentralWidget(widget);
 
     setCommands(widget);  // add task and remove task, filter and sort
 
-    QScrollArea *scroll_Area = new QScrollArea(widget);  // for tasks
+    scroll_Area = new QScrollArea(widget);  // for tasks
     scroll_Area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scroll_Area->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scroll_Area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    QWidget *scrollWidget = new QWidget(this);
+    scrollLayout          = new QVBoxLayout(scrollWidget);
+
+    scroll_Area->setWidget(scrollWidget);
+    scroll_Area->setWidgetResizable(true);
 
     QVBoxLayout *main_layout = new QVBoxLayout;
+
     main_layout->addLayout(commands_Layout);
     main_layout->addLayout(filter_sort_Layout);
     main_layout->addWidget(scroll_Area);
 
     widget->setLayout(main_layout);
+
+    // scrollLayout->addWidget(new QPushButton(this));
+}
+
+void MainWindow::addTaskToScrollArea(const Task &task)
+{
+    TaskWidget *taskWidget = new TaskWidget(task, this);
+    scrollLayout->insertWidget(0, taskWidget, 0, Qt::AlignTop);
+    scrollLayout->addStretch();
 }
