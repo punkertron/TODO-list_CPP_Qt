@@ -6,8 +6,12 @@
 
 #include "../incs/TaskWidgwet.hpp"
 
-TaskWidget::TaskWidget(const Task& task, QWidget* parent) :
-    QWidget(parent), task_id(task.task_id), m_task_status(task.m_task_status), deadline_date(task.m_deadline_date)
+TaskWidget::TaskWidget(const Task& task, DbTaskController* dbTaskController, QWidget* parent) :
+    QWidget(parent),
+    dbTaskController(dbTaskController),
+    task_id(task.task_id),
+    m_task_status(task.m_task_status),
+    deadline_date(task.m_deadline_date)
 {
     QString res  = QString("Task: <b>%1</b>").arg(task.m_name.left(40) + (task.m_name.size() > 40 ? "..." : ""));
     QLabel* name = new QLabel(res);
@@ -84,19 +88,25 @@ TaskWidget::TaskWidget(const Task& task, QWidget* parent) :
 
 void TaskWidget::onResumeButtonClicked()
 {
-    m_task_status = "in progress";
+    const char* s = "in progress";
+    dbTaskController->setStatus(task_id, s);
+    m_task_status = s;
     fillColour();
 }
 
 void TaskWidget::onPauseButtonClicked()
 {
-    m_task_status = "default";
+    const char* s = "default";
+    dbTaskController->setStatus(task_id, s);
+    m_task_status = s;
     fillColour();
 }
 
 void TaskWidget::onDoneButtonClicked()
 {
-    m_task_status = "done";
+    const char* s = "done";
+    dbTaskController->setStatus(task_id, s);
+    m_task_status = s;
     fillColour();
 }
 

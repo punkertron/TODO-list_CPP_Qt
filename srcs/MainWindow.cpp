@@ -140,7 +140,7 @@ void MainWindow::showTaskFromDb()
 
 void MainWindow::addTaskToScrollArea(const Task &task)
 {
-    TaskWidget *taskWidget = new TaskWidget(task /*, this*/);
+    TaskWidget *taskWidget = new TaskWidget(task, dbTaskController /*, this*/);
     scrollLayout->insertWidget(0, taskWidget, 0, Qt::AlignTop);
     scrollLayout->addStretch();
 }

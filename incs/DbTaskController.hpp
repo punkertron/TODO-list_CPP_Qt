@@ -30,6 +30,8 @@ class DbTaskController final
     {
         return taskList;
     }
+
+    void setStatus(int32_t task_id, const char* status_type);
 };
 
 #endif  // DB_TASK_CONTROLLER_HPP

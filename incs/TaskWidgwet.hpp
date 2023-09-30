@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+#include "DbTaskController.hpp"
 #include "Task.hpp"
 
 class TaskWidget : public QWidget
@@ -10,6 +11,7 @@ class TaskWidget : public QWidget
     Q_OBJECT
 
    private:
+    DbTaskController* dbTaskController;
     int32_t task_id;
     QString m_task_status;
     QDate deadline_date;
@@ -41,7 +43,7 @@ class TaskWidget : public QWidget
     void onDoneButtonClicked();
 
    public:
-    TaskWidget(const Task& task, QWidget* parent = nullptr);
+    TaskWidget(const Task& task, DbTaskController* dbTaskController, QWidget* parent = nullptr);
 
     bool isSelected() const
     {

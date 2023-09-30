@@ -1,7 +1,7 @@
+#include "../incs/DbTaskController.hpp"
+
 #include <QMessageBox>
 #include <iostream>
-
-#include "../incs/DbTaskController.hpp"
 
 DbTaskController::DbTaskController() : db(QSqlDatabase::addDatabase("QPSQL"))
 {
@@ -103,4 +103,30 @@ void DbTaskController::deleteTask(int32_t task_id)
         {
             return t.task_id == task_id;
         });
+}
+
+void DbTaskController::setStatus(int32_t task_id, const char* task_status)
+{
+    QSqlQuery query(db);
+    query.prepare(R"(
+        UPDATE todo.tasks
+        SET task_status = :task_status
+        WHERE task_id = :task_id;
+    )");
+    query.bindValue(":task_status", task_status);
+    query.bindValue(":task_id", task_id);
+
+    if (!query.exec())
+        errorExec(query.lastError().text());
+
+    auto it = taskList.begin(), end = taskList.end();
+    while (it != end)
+    {
+        if ((*it).task_id == task_id)
+        {
+            (*it).m_task_status = task_status;
+            break;
+        }
+        ++it;
+    }
 }
