@@ -29,16 +29,6 @@ void MainWindow::addNewTask()
     connect(&dialog, &AddTaskDialog::userDataEntered, this, &MainWindow::onUserDataEntered);
 
     (void)dialog.exec();  // it doesn't matter what exec returns
-
-    // int result = dialog.exec();
-    // if (result == QDialog::Accepted)
-    // {
-    //     ;
-    // }
-    // if (result == QDialog::Rejected)
-    // {
-    //     std::cout << "Hello worodl" << std::endl;
-    // }
 }
 
 void MainWindow::filterTasks()
@@ -51,7 +41,7 @@ void MainWindow::filterTasks()
 
 void MainWindow::setCommands(QWidget *parent)
 {
-    // fisrt row
+    // fisrt row. Add task and Delete it
     QPushButton *addTaskButton = new QPushButton(parent);
     addTaskButton->setIcon(QIcon("../icons/add_task.png"));
     addTaskButton->setFixedSize(QSize(50, 50));
@@ -66,7 +56,7 @@ void MainWindow::setCommands(QWidget *parent)
     commands_Layout->addWidget(addTaskButton, 0, Qt::AlignLeft);
     commands_Layout->addWidget(deleteTask, 1, Qt::AlignLeft);
 
-    // second row
+    // second row. Filter and Sorting
     QPushButton *filterButton = new QPushButton("Filter", parent);
     QPushButton *sortButton   = new QPushButton("Sort", parent);
 
@@ -77,7 +67,6 @@ void MainWindow::setCommands(QWidget *parent)
     spacerItem = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed);
     filter_sort_Layout->addSpacerItem(spacerItem);
 
-    // TODO: add slots
     // QObject::connect(addTaskButton, SIGNAL(clicked()), this, SLOT(addNewTask()));
     connect(addTaskButton, &QPushButton::clicked, this, &MainWindow::addNewTask);
     connect(deleteTask, &QPushButton::clicked, this, &MainWindow::deleteTasks);
@@ -96,14 +85,13 @@ void MainWindow::deleteTasks()
             dbTaskController->deleteTask(taskWidget->getTaskId());
 
             // FIXME: Should we delete stretch? In addTaskToScrollArea we addStretch()
-
             delete scrollLayout->itemAt(i)->widget();
             delete scrollLayout->itemAt(i)->layout();
+
             i = -1;  // to start from beginning
         }
     }
-    scrollLayout->update();
-    // std::cout << "Count AFTER DELETE = " << scrollLayout->count() << std::endl;
+    // scrollLayout->update();
 }
 
 MainWindow::MainWindow(DbTaskController *dbTaskController, QWidget *parent) :
@@ -111,7 +99,7 @@ MainWindow::MainWindow(DbTaskController *dbTaskController, QWidget *parent) :
 {
     setWindowTitle("TODO-list");
     setWindowIcon(QIcon("../icons/todo_logo.png"));
-    setMinimumSize(QSize(750, 800));
+    setFixedSize(QSize(770, 800));  // Fixed?
 
     QWidget *widget = new QWidget(this);
     setCentralWidget(widget);
@@ -136,12 +124,23 @@ MainWindow::MainWindow(DbTaskController *dbTaskController, QWidget *parent) :
     main_layout->addWidget(scroll_Area);
 
     widget->setLayout(main_layout);
+
+    showTaskFromDb();
+}
+
+void MainWindow::showTaskFromDb()
+{
+    auto l = dbTaskController->getListTask();
+
+    for (auto crit = l.crbegin(), crend = l.crend(); crit != crend; ++crit)
+    {
+        addTaskToScrollArea(*crit);
+    }
 }
 
 void MainWindow::addTaskToScrollArea(const Task &task)
 {
     TaskWidget *taskWidget = new TaskWidget(task /*, this*/);
-    taskWidget->setMaximumWidth(scrollLayout->geometry().width() - 20);
     scrollLayout->insertWidget(0, taskWidget, 0, Qt::AlignTop);
     scrollLayout->addStretch();
 }

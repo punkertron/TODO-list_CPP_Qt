@@ -29,7 +29,7 @@ TaskWidget::TaskWidget(const Task& task, QWidget* parent) :
         line->setStyleSheet(QString("margin-right: 10px; background-color: #000000;"));
 
         description =
-            new QLabel("Description: " + task.m_description.left(230) + (task.m_description.size() > 230 ? "..." : ""));
+            new QLabel("Description: " + task.m_description.left(250) + (task.m_description.size() > 250 ? "..." : ""));
         description->setWordWrap(true);
         description->setIndent(10);
         description->setStyleSheet("margin-right: 10px;");
@@ -70,9 +70,8 @@ TaskWidget::TaskWidget(const Task& task, QWidget* parent) :
     mainLayout->addLayout(vLayoutTask);
     mainLayout->setSpacing(10);
 
-    setFixedHeight(120);
-    // setMaximumWidth(690);
-    // setMinimumWidth(670);
+    setFixedSize(QSize(715, 120));
+    // setFixedHeight(120);
 
     fillColour();
 

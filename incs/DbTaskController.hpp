@@ -12,6 +12,7 @@ class DbTaskController final
     QSqlDatabase db;
     QList<Task> taskList;
 
+    void retrieveTasks();
     void errorExec(const QString& lastErrorText);
 
    public:
@@ -23,7 +24,12 @@ class DbTaskController final
         return taskList.front();
     }
 
-    void deleteTask(uint32_t task_id);
+    void deleteTask(int32_t task_id);
+
+    const QList<Task>& getListTask() const
+    {
+        return taskList;
+    }
 };
 
 #endif  // DB_TASK_CONTROLLER_HPP

@@ -24,6 +24,7 @@ class MainWindow : public QMainWindow
 
     void setCommands(QWidget *parent);
     void addTaskToScrollArea(const Task &task);
+    void showTaskFromDb();
 
    private slots:
     void addNewTask();

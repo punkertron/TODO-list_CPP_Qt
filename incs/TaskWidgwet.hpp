@@ -10,7 +10,7 @@ class TaskWidget : public QWidget
     Q_OBJECT
 
    private:
-    uint32_t task_id;
+    int32_t task_id;
     QString m_task_status;
     QDate deadline_date;
 
@@ -48,7 +48,7 @@ class TaskWidget : public QWidget
         return selected;
     }
 
-    uint32_t getTaskId() const
+    int32_t getTaskId() const
     {
         return task_id;
     }
