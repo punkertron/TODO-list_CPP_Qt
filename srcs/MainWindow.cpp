@@ -16,13 +16,9 @@
 
 void MainWindow::onUserDataEntered(Task &task)
 {
-    dbTaskManager->addNewTask(task);
+    dbTaskController->addNewTask(task);
 
-    addTaskToScrollArea(dbTaskManager->getFrontTask());
-
-    // std::cout << task.m_name.toStdString() << std::endl;
-    // std::cout << task.m_description.toStdString() << std::endl;
-    // std::cout << task.m_deadline_date.toString().toStdString() << std::endl;
+    addTaskToScrollArea(dbTaskController->getFrontTask());
 }
 
 void MainWindow::addNewTask()
@@ -84,15 +80,38 @@ void MainWindow::setCommands(QWidget *parent)
     // TODO: add slots
     // QObject::connect(addTaskButton, SIGNAL(clicked()), this, SLOT(addNewTask()));
     connect(addTaskButton, &QPushButton::clicked, this, &MainWindow::addNewTask);
-
+    connect(deleteTask, &QPushButton::clicked, this, &MainWindow::deleteTasks);
     connect(filterButton, &QPushButton::clicked, this, &MainWindow::filterTasks);
 }
 
-MainWindow::MainWindow(DbTaskManager *dbTaskManager, QWidget *parent) : QMainWindow(parent), dbTaskManager(dbTaskManager)
+void MainWindow::deleteTasks()
+{
+    for (int i = 0; i < scrollLayout->count(); ++i)
+    {
+        QWidget *widget = scrollLayout->layout()->itemAt(i)->widget();
+
+        TaskWidget *taskWidget = qobject_cast<TaskWidget *>(widget);
+        if (taskWidget && taskWidget->isSelected())
+        {
+            dbTaskController->deleteTask(taskWidget->getTaskId());
+
+            // FIXME: Should we delete stretch? In addTaskToScrollArea we addStretch()
+
+            delete scrollLayout->itemAt(i)->widget();
+            delete scrollLayout->itemAt(i)->layout();
+            i = -1;  // to start from beginning
+        }
+    }
+    scrollLayout->update();
+    // std::cout << "Count AFTER DELETE = " << scrollLayout->count() << std::endl;
+}
+
+MainWindow::MainWindow(DbTaskController *dbTaskController, QWidget *parent) :
+    QMainWindow(parent), dbTaskController(dbTaskController)
 {
     setWindowTitle("TODO-list");
     setWindowIcon(QIcon("../icons/todo_logo.png"));
-    setMinimumSize(QSize(730, 800));
+    setMinimumSize(QSize(750, 800));
 
     QWidget *widget = new QWidget(this);
     setCentralWidget(widget);
@@ -105,6 +124,7 @@ MainWindow::MainWindow(DbTaskManager *dbTaskManager, QWidget *parent) : QMainWin
 
     QWidget *scrollWidget = new QWidget(this);
     scrollLayout          = new QVBoxLayout(scrollWidget);
+    scrollLayout->setContentsMargins(10, 10, 10, 10);
 
     scroll_Area->setWidget(scrollWidget);
     scroll_Area->setWidgetResizable(true);
@@ -116,13 +136,12 @@ MainWindow::MainWindow(DbTaskManager *dbTaskManager, QWidget *parent) : QMainWin
     main_layout->addWidget(scroll_Area);
 
     widget->setLayout(main_layout);
-
-    // scrollLayout->addWidget(new QPushButton(this));
 }
 
 void MainWindow::addTaskToScrollArea(const Task &task)
 {
-    TaskWidget *taskWidget = new TaskWidget(task, this);
+    TaskWidget *taskWidget = new TaskWidget(task /*, this*/);
+    taskWidget->setMaximumWidth(scrollLayout->geometry().width() - 20);
     scrollLayout->insertWidget(0, taskWidget, 0, Qt::AlignTop);
     scrollLayout->addStretch();
 }

@@ -1,7 +1,5 @@
 CREATE SCHEMA todo AUTHORIZATION todo_user;
 
-CREATE SEQUENCE todo_id_sequence;
-
 CREATE TYPE e_task_status AS ENUM (
     'default',
     'in progress',
@@ -9,7 +7,7 @@ CREATE TYPE e_task_status AS ENUM (
 );
 
 CREATE TABLE todo.tasks (
-    task_id INTEGER PRIMARY KEY DEFAULT nextval('todo_id_sequence'),
+    task_id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
     deadline_date DATE,
@@ -17,4 +15,3 @@ CREATE TABLE todo.tasks (
 );
 
 GRANT ALL ON ALL TABLES IN SCHEMA todo TO todo_user;
-GRANT USAGE ON SEQUENCE todo_id_sequence TO todo_user;

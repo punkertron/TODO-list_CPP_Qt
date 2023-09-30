@@ -5,7 +5,7 @@
 #include <QMainWindow>
 #include <QScrollArea>
 
-#include "../incs/DbTaskManager.hpp"
+#include "../incs/DbTaskController.hpp"
 #include "../incs/Task.hpp"
 
 class MainWindow : public QMainWindow
@@ -13,7 +13,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
    private:
-    DbTaskManager *dbTaskManager;
+    DbTaskController *dbTaskController;
 
     QHBoxLayout *commands_Layout;
     QHBoxLayout *filter_sort_Layout;
@@ -27,11 +27,12 @@ class MainWindow : public QMainWindow
 
    private slots:
     void addNewTask();
+    void deleteTasks();
     void filterTasks();
     void onUserDataEntered(Task &task);
 
    public:
-    MainWindow(DbTaskManager *dbTaskManager, QWidget *parent = nullptr);
+    MainWindow(DbTaskController *dbTaskController, QWidget *parent = nullptr);
     ~MainWindow() = default;
 };
 

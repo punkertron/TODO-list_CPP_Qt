@@ -1,25 +1,29 @@
-#ifndef DB_MANAGER_HPP
-#define DB_MANAGER_HPP
+#ifndef DB_TASK_CONTROLLER_HPP
+#define DB_TASK_CONTROLLER_HPP
 
 #include <QList>
 #include <QtSql>
 
 #include "Task.hpp"
 
-class DbTaskManager final
+class DbTaskController final
 {
    private:
     QSqlDatabase db;
     QList<Task> taskList;
 
+    void errorExec(const QString& lastErrorText);
+
    public:
-    DbTaskManager();
+    DbTaskController();
 
     void addNewTask(Task& task);
     const Task& getFrontTask() const
     {
         return taskList.front();
     }
+
+    void deleteTask(uint32_t task_id);
 };
 
-#endif  // DB_MANAGER_HPP
+#endif  // DB_TASK_CONTROLLER_HPP

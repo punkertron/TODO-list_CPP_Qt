@@ -14,7 +14,26 @@ class TaskWidget : public QWidget
     QString m_task_status;
     QDate deadline_date;
 
+    bool selected = false;
+
     void fillColour();
+
+    void paintEvent(QPaintEvent* event) override;
+
+    void mousePressEvent(QMouseEvent* /*event*/) override
+    {
+        setSelected(!isSelected());
+        emit selectionChanged(selected);
+    }
+
+    void setSelected(bool selected)
+    {
+        this->selected = selected;
+        update();  // Request widget repaint to reflect the change
+    }
+
+   signals:
+    void selectionChanged(bool selected);
 
    private slots:
     void onResumeButtonClicked();
@@ -23,6 +42,16 @@ class TaskWidget : public QWidget
 
    public:
     TaskWidget(const Task& task, QWidget* parent = nullptr);
+
+    bool isSelected() const
+    {
+        return selected;
+    }
+
+    uint32_t getTaskId() const
+    {
+        return task_id;
+    }
 };
 
 #endif  // TASK_WIDGET_HPP

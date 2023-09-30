@@ -1,5 +1,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QPainter>
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -16,15 +17,22 @@ TaskWidget::TaskWidget(const Task& task, QWidget* parent) :
     QString deadlineStr   = QString("Deadline: <b>%1</b>").arg(deadline_date.toString("d MMM, dddd"));
     QLabel* deadline_date = new QLabel(deadlineStr);
     deadline_date->setTextFormat(Qt::RichText);
-    deadline_date->setStyleSheet("margin-right: 15px;");
+    deadline_date->setStyleSheet("margin-right: 10px;");
 
     QLabel* description;
+    QWidget* line;
     if (task.m_description.size())  // no descr. if empty
     {
+        line = new QWidget;
+        line->setFixedHeight(2);
+        line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        line->setStyleSheet(QString("margin-right: 10px; background-color: #000000;"));
+
         description =
             new QLabel("Description: " + task.m_description.left(230) + (task.m_description.size() > 230 ? "..." : ""));
         description->setWordWrap(true);
         description->setIndent(10);
+        description->setStyleSheet("margin-right: 10px;");
     }
 
     QHBoxLayout* hLayout = new QHBoxLayout;
@@ -37,6 +45,7 @@ TaskWidget::TaskWidget(const Task& task, QWidget* parent) :
 
     if (task.m_description.size())
     {
+        vLayoutTask->addWidget(line);
         vLayoutTask->addWidget(description);
     }
 
@@ -62,7 +71,8 @@ TaskWidget::TaskWidget(const Task& task, QWidget* parent) :
     mainLayout->setSpacing(10);
 
     setFixedHeight(120);
-    setMinimumWidth(700);
+    // setMaximumWidth(690);
+    // setMinimumWidth(670);
 
     fillColour();
 
@@ -70,6 +80,8 @@ TaskWidget::TaskWidget(const Task& task, QWidget* parent) :
     connect(pause, &QPushButton::clicked, this, &TaskWidget::onPauseButtonClicked);
     connect(done, &QPushButton::clicked, this, &TaskWidget::onDoneButtonClicked);
 }
+
+// TODO: change status in Database
 
 void TaskWidget::onResumeButtonClicked()
 {
@@ -99,4 +111,13 @@ void TaskWidget::fillColour()
         setStyleSheet("background-color: #FEF233;");
     else  // done
         setStyleSheet("background-color: #33FE39;");
+}
+
+void TaskWidget::paintEvent(QPaintEvent* /*event*/)
+{
+    QPainter painter(this);
+    if (selected)
+        painter.fillRect(rect(), QColor("#B3D9FF"));
+    else
+        painter.fillRect(rect(), QColor("#FEFEFE"));
 }

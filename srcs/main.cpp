@@ -1,15 +1,15 @@
 #include <QApplication>
 
-#include "../incs/DbTaskManager.hpp"
+#include "../incs/DbTaskController.hpp"
 #include "../incs/MainWindow.hpp"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    DbTaskManager dbTaskManager;
+    DbTaskController dbTaskController;
 
-    MainWindow w(&dbTaskManager);
+    MainWindow w(&dbTaskController);
     w.show();
     return a.exec();
 }
