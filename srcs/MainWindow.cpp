@@ -4,9 +4,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
-
-// #include <iostream>
-
 #include <iostream>
 
 #include "../incs/AddTaskDialog.hpp"
@@ -14,11 +11,64 @@
 #include "../incs/Task.hpp"
 #include "../incs/TaskWidgwet.hpp"
 
-void MainWindow::onUserDataEntered(Task &task)
+void MainWindow::onAddNewTask(Task &task)
 {
     dbTaskController->addNewTask(task);
+    dbTaskController->setFilterVisible(dbTaskController->getLastTaskId());
 
-    addTaskToScrollArea(dbTaskController->getLastTask());
+    if (dbTaskController->getLastTask().isVisible)
+        addTaskToScrollArea(dbTaskController->getLastTaskId());
+}
+
+void MainWindow::setFilterView()
+{
+    dbTaskController->setFilterParams(filterParams);
+    dbTaskController->setFilterVisibleAll();
+    deleteAllTasks();
+    showTaskFromDb();
+}
+
+void MainWindow::onFilterTasks(FilterParams &newFilterParams)
+{
+    filterParams = newFilterParams;
+    setFilterView();
+
+    FilterParams defaultFilter;
+    if (defaultFilter.isEqual(filterParams))
+    {
+        isFiltered = false;
+        removeDefaultFilterButton();
+    }
+    else
+    {
+        if (!isFiltered)
+            createDefaultFilterButton();
+        isFiltered = true;
+    }
+}
+
+void MainWindow::createDefaultFilterButton()
+{
+    defaultFilter = new QPushButton("Reset filters", this);
+    filter_sort_Layout->addWidget(defaultFilter, 1, Qt::AlignLeft);
+    defaultFilter->setStyleSheet("background-color: #00E6E6");
+
+    connect(defaultFilter, &QPushButton::clicked, this, &MainWindow::onDefaultFilterClicked);
+}
+
+void MainWindow::onDefaultFilterClicked()
+{
+    filterParams = FilterParams();
+    setFilterView();
+    isFiltered = false;
+    removeDefaultFilterButton();
+}
+
+void MainWindow::removeDefaultFilterButton()
+{
+    QLayoutItem *item = filter_sort_Layout->layout()->takeAt(3);
+    delete item->widget();
+    delete item;
 }
 
 void MainWindow::addNewTask()
@@ -26,28 +76,29 @@ void MainWindow::addNewTask()
     AddTaskDialog dialog;
     Task task;
 
-    connect(&dialog, &AddTaskDialog::userDataEntered, this, &MainWindow::onUserDataEntered);
+    connect(&dialog, &AddTaskDialog::userDataEntered, this, &MainWindow::onAddNewTask);
 
     (void)dialog.exec();  // it doesn't matter what exec returns
 }
 
 void MainWindow::filterTasks()
 {
-    // QMessageBox::information(nullptr, "Action Triggered", "MyAction was triggered!");
-    FilterDialog d;
-    int result = d.exec();
-    (void)result;
+    FilterDialog dialog(&filterParams);
+
+    connect(&dialog, &FilterDialog::userDataEntered, this, &MainWindow::onFilterTasks);
+
+    (void)dialog.exec();
 }
 
-void MainWindow::setCommands(QWidget *parent)
+void MainWindow::setCommands()
 {
     // fisrt row. Add task and Delete it
-    QPushButton *addTaskButton = new QPushButton(parent);
+    QPushButton *addTaskButton = new QPushButton(this);
     addTaskButton->setIcon(QIcon("../icons/add_task.png"));
     addTaskButton->setFixedSize(QSize(50, 50));
     addTaskButton->setIconSize(QSize(40, 40));
 
-    QPushButton *deleteTask = new QPushButton(parent);
+    QPushButton *deleteTask = new QPushButton(this);
     deleteTask->setIcon(QIcon("../icons/remove_task.png"));
     deleteTask->setFixedSize(QSize(50, 50));
     deleteTask->setIconSize(QSize(40, 40));
@@ -57,8 +108,8 @@ void MainWindow::setCommands(QWidget *parent)
     commands_Layout->addWidget(deleteTask, 1, Qt::AlignLeft);
 
     // second row. Filter and Sorting
-    QPushButton *filterButton = new QPushButton("Filter", parent);
-    QPushButton *sortButton   = new QPushButton("Sort", parent);
+    QPushButton *filterButton = new QPushButton("Filter", this);
+    QPushButton *sortButton   = new QPushButton("Sort", this);
 
     filter_sort_Layout = new QHBoxLayout;
     filter_sort_Layout->addWidget(filterButton);
@@ -71,6 +122,16 @@ void MainWindow::setCommands(QWidget *parent)
     connect(addTaskButton, &QPushButton::clicked, this, &MainWindow::addNewTask);
     connect(deleteTask, &QPushButton::clicked, this, &MainWindow::deleteTasks);
     connect(filterButton, &QPushButton::clicked, this, &MainWindow::filterTasks);
+}
+
+void MainWindow::deleteAllTasks()
+{
+    QLayoutItem *item;
+    while ((item = scrollLayout->layout()->takeAt(0)) != nullptr)
+    {
+        delete item->widget();
+        delete item;
+    }
 }
 
 void MainWindow::deleteTasks()
@@ -104,18 +165,9 @@ MainWindow::MainWindow(DbTaskController *dbTaskController, QWidget *parent) :
     QWidget *widget = new QWidget(this);
     setCentralWidget(widget);
 
-    setCommands(widget);  // add task and remove task, filter and sort
+    setCommands();  // add task and remove task, filter and sort
 
-    scroll_Area = new QScrollArea(widget);  // for tasks
-    scroll_Area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scroll_Area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    QWidget *scrollWidget = new QWidget(this);
-    scrollLayout          = new QVBoxLayout(scrollWidget);
-    scrollLayout->setContentsMargins(10, 10, 10, 10);
-
-    scroll_Area->setWidget(scrollWidget);
-    scroll_Area->setWidgetResizable(true);
+    setScrollArea();
 
     QVBoxLayout *main_layout = new QVBoxLayout;
 
@@ -128,11 +180,26 @@ MainWindow::MainWindow(DbTaskController *dbTaskController, QWidget *parent) :
     showTaskFromDb();
 }
 
+void MainWindow::setScrollArea()
+{
+    scroll_Area = new QScrollArea(this);  // for tasks
+    scroll_Area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scroll_Area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    QWidget *scrollWidget = new QWidget(this);
+    scrollLayout          = new QVBoxLayout(scrollWidget);
+    scrollLayout->setContentsMargins(10, 10, 10, 10);
+
+    scroll_Area->setWidget(scrollWidget);
+    scroll_Area->setWidgetResizable(true);
+}
+
 void MainWindow::showTaskFromDb()
 {
     for (const auto &[key, value] : dbTaskController->getMapTask().toStdMap())
     {
-        addTaskToScrollArea(key);
+        if (value.isVisible)
+            addTaskToScrollArea(key);
     }
 }
 

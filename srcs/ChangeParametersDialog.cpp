@@ -62,16 +62,10 @@ void ChangeParametersDialog::onOKButtonClicked()
         return;
     }
 
-    Task task;
+    Task task(m_Enter_name->text(), m_Enter_description->toPlainText(), m_Enter_deadline_date->selectedDate());
 
-    task.m_name          = m_Enter_name->text();
-    task.m_description   = m_Enter_description->toPlainText();
-    task.m_deadline_date = m_Enter_deadline_date->selectedDate();
-
-    // Emit the signal with the collected data
     emit userDataEntered(task);
-
-    // Close the dialog
+    // TODO: pointers should be members of the class?
     accept();
 }
 

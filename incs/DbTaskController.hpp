@@ -4,6 +4,7 @@
 #include <QMap>
 #include <QtSql>
 
+#include "FilterParams.hpp"
 #include "Task.hpp"
 
 class DbTaskController final
@@ -11,6 +12,7 @@ class DbTaskController final
    private:
     QSqlDatabase db;
     QMap<int32_t, Task> taskMap;
+    FilterParams filterParams;
 
     void retrieveTasks();
     void errorExec(const QString& lastErrorText);
@@ -18,8 +20,22 @@ class DbTaskController final
    public:
     DbTaskController();
 
+    void setFilterParams(const FilterParams& other)
+    {
+        filterParams = other;
+    }
+
+    void setFilterVisible(int32_t task_id);
+    void setFilterVisibleAll();
+
     void addNewTask(Task& task);
-    int32_t getLastTask() const
+
+    const Task& getLastTask() const
+    {
+        return taskMap.last();
+    }
+
+    int32_t getLastTaskId() const
     {
         return taskMap.lastKey();
     }

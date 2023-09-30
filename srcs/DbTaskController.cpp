@@ -20,7 +20,7 @@ DbTaskController::DbTaskController() : db(QSqlDatabase::addDatabase("QPSQL"))
         exit(EXIT_FAILURE);
     }
 
-    // retrieve all tasks from db
+    // retrieve all tasks from Db
     retrieveTasks();
 }
 
@@ -43,15 +43,7 @@ void DbTaskController::retrieveTasks()
         }
     }
     else
-    {
         errorExec(query.lastError().text());
-    }
-
-    // for (auto& t : taskList)
-    // {
-    //     std::cout << t.task_id << t.m_name.toStdString() << t.m_description.toStdString()
-    //               << t.m_deadline_date.toString().toStdString() << t.m_task_status.toStdString() << std::endl;
-    // }
 }
 
 void DbTaskController::errorExec(const QString& lastErrorText)
@@ -138,4 +130,30 @@ void DbTaskController::setTask(int32_t task_id, const Task& task)
         errorExec(query.lastError().text());
 
     taskMap[task_id] = task;
+    setFilterVisible(task_id);
+}
+
+// check filter condition. if something wrong then isVisible = false
+void DbTaskController::setFilterVisible(int32_t task_id)
+{
+    Task task = taskMap[task_id];
+
+    bool a = filterParams.m_name == "" ? true : task.m_name.toLower().contains(filterParams.m_name.toLower());
+    bool b = filterParams.m_description == "" ? true
+                                              : task.m_description.toLower().contains(filterParams.m_description.toLower());
+    bool c = task.m_deadline_date >= filterParams.m_minDate;
+    bool d = task.m_deadline_date <= filterParams.m_maxDate;
+    bool e = (filterParams.m_defaultTaskStatus && task.m_task_status == "default") ||
+             (filterParams.m_progressTaskStatus && task.m_task_status == "in progress") ||
+             (filterParams.m_doneTaskStatus && task.m_task_status == "done");
+    if (a && b && c && d && e)
+        taskMap[task_id].isVisible = true;
+    else
+        taskMap[task_id].isVisible = false;
+}
+
+void DbTaskController::setFilterVisibleAll()
+{
+    for (const auto& [key, value] : taskMap.toStdMap())
+        setFilterVisible(key);
 }

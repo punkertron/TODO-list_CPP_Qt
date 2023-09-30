@@ -3,9 +3,11 @@
 
 #include <QHBoxLayout>
 #include <QMainWindow>
+#include <QPushButton>
 #include <QScrollArea>
 
 #include "../incs/DbTaskController.hpp"
+#include "../incs/FilterParams.hpp"
 #include "../incs/Task.hpp"
 
 class MainWindow : public QMainWindow
@@ -15,22 +17,32 @@ class MainWindow : public QMainWindow
    private:
     DbTaskController *dbTaskController;
 
+    FilterParams filterParams;
+    bool isFiltered = false;
+
     QHBoxLayout *commands_Layout;
     QHBoxLayout *filter_sort_Layout;
     QSpacerItem *spacerItem;
     QScrollArea *scroll_Area;
-
     QVBoxLayout *scrollLayout;
+    QPushButton *defaultFilter;
 
-    void setCommands(QWidget *parent);
+    void setCommands();
+    void setScrollArea();
     void addTaskToScrollArea(int32_t task_id);
     void showTaskFromDb();
+    void deleteAllTasks();
+    void removeDefaultFilterButton();
+    void createDefaultFilterButton();
 
    private slots:
     void addNewTask();
     void deleteTasks();
     void filterTasks();
-    void onUserDataEntered(Task &task);
+    void onAddNewTask(Task &task);
+    void onFilterTasks(FilterParams &filterParams);
+    void onDefaultFilterClicked();
+    void setFilterView();
 
    public:
     MainWindow(DbTaskController *dbTaskController, QWidget *parent = nullptr);

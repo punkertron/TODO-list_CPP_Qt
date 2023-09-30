@@ -9,12 +9,13 @@ struct Task
     QString m_name;
     QString m_description = "";
     QDate m_deadline_date;
-    QString m_task_status = "default";
-    bool isVisible        = true;
+    QString m_task_status;
+    bool isVisible = true;
 
     Task() = default;
 
-    Task(const QString& name, const QString& description, const QDate& deadline_date, const QString& task_status) :
+    Task(const QString& name, const QString& description, const QDate& deadline_date,
+         const QString& task_status = "default") :
         m_name(name), m_description(description), m_deadline_date(deadline_date), m_task_status(task_status)
     {
     }

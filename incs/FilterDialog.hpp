@@ -1,21 +1,38 @@
 #ifndef FILTER_DIALOG_HPP
 #define FILTER_DIALOG_HPP
 
+#include <QCalendarWidget>
+#include <QCheckBox>
 #include <QDialog>
+#include <QLineEdit>
+
+#include "../incs/FilterParams.hpp"
 
 class FilterDialog : public QDialog
 {
     Q_OBJECT
 
    private:
-    // QLineEdit* m_Enter_name;
-    // QTextEdit* m_Enter_description;
-    // QCalendarWidget* m_Enter_deadline_date;
-    // std::string m_Enter_task_status;
+    FilterParams* filterParams;
+
+    QLineEdit* lineName;
+    QLineEdit* lineDescription;
+    QCalendarWidget* minDate;
+    QCalendarWidget* maxDate;
+    QCheckBox* cbxDefault;
+    QCheckBox* cbxProgress;
+    QCheckBox* cbxDone;
+
+   private slots:
+    void onOKButtonClicked();
+    void onCancelButtonClicked();
 
    public:
-    FilterDialog(QWidget* parent = nullptr);
+    FilterDialog(FilterParams* filterParams, QWidget* parent = nullptr);
     ~FilterDialog() = default;
+
+   signals:
+    void userDataEntered(FilterParams& task);
 };
 
 #endif  // FILTER_DIALOG_HPP

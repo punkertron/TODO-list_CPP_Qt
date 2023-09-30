@@ -1,56 +1,93 @@
 #include "../incs/FilterDialog.hpp"
 
-#include <QCheckBox>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
 
-// TODO: pointers should be members of the class?
+#include "../incs/FilterParams.hpp"
 
-FilterDialog::FilterDialog(QWidget* parent) : QDialog(parent)
+FilterDialog::FilterDialog(FilterParams* filterParams, QWidget* parent) : QDialog(parent), filterParams(filterParams)
 {
     setWindowTitle("Filter Tasks");
-    setMinimumWidth(400);
-    // setMinimumSize(QSize(400, 400));
+    setMinimumSize(QSize(600, 500));
     setWindowIcon(QIcon("../icons/filter_icon.png"));
 
-    QLabel* selectStatus   = new QLabel("Select status (All by default):", this);
-    QCheckBox* cbxProgress = new QCheckBox("In progress", this);
-    QCheckBox* cbxDone     = new QCheckBox("Done", this);
+    cbxDefault  = new QCheckBox("default", this);
+    cbxProgress = new QCheckBox("in progress", this);
+    cbxDone     = new QCheckBox("done", this);
+    cbxDefault->setChecked(filterParams->m_defaultTaskStatus);
+    cbxProgress->setChecked(filterParams->m_progressTaskStatus);
+    cbxDone->setChecked(filterParams->m_doneTaskStatus);
 
-    QLabel* filterName  = new QLabel("Enter name (case NON-sensitive, maybe NOT full):", this);
-    QLineEdit* lineName = new QLineEdit(this);
+    lineName        = new QLineEdit(filterParams->m_name, this);
+    lineDescription = new QLineEdit(filterParams->m_description, this);
 
-    QLabel* filterDescription  = new QLabel("Enter description (case NON-sensitive, maybe NOT full):", this);
-    QLineEdit* lineDescription = new QLineEdit(this);
+    QVBoxLayout* mainLayout = new QVBoxLayout;
 
-    QPushButton* okButton     = new QPushButton("OK", this);
-    QPushButton* cancelButton = new QPushButton("Cancel", this);
+    mainLayout->addWidget(new QLabel("Select status (All by default):", this));
+    mainLayout->addWidget(cbxDefault);
+    mainLayout->addWidget(cbxProgress);
+    mainLayout->addWidget(cbxDone);
+    mainLayout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    mainLayout->addWidget(new QLabel("Enter name (case NON-sensitive, maybe NOT full):", this));
+    mainLayout->addWidget(lineName);
+    mainLayout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    mainLayout->addWidget(new QLabel("Enter description (case NON-sensitive, maybe NOT full):", this));
+    mainLayout->addWidget(lineDescription);
+    mainLayout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed));
 
-    QVBoxLayout* v_layout = new QVBoxLayout;
+    minDate = new QCalendarWidget(this);
+    maxDate = new QCalendarWidget(this);
 
-    v_layout->addWidget(selectStatus);
-    v_layout->addWidget(cbxProgress);
-    v_layout->addWidget(cbxDone);
+    minDate->setFirstDayOfWeek(Qt::DayOfWeek::Monday);
+    maxDate->setFirstDayOfWeek(Qt::DayOfWeek::Monday);
+    minDate->setSelectedDate(filterParams->m_minDate);
+    maxDate->setSelectedDate(filterParams->m_maxDate);
 
-    v_layout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    QVBoxLayout* calStartLayout = new QVBoxLayout;
+    calStartLayout->addWidget(new QLabel("Enter min. date:", this));
+    calStartLayout->addWidget(minDate);
 
-    v_layout->addWidget(filterName);
-    v_layout->addWidget(lineName);
+    QVBoxLayout* calEndLayout = new QVBoxLayout;
+    calEndLayout->addWidget(new QLabel("Enter max. date:", this));
+    calEndLayout->addWidget(maxDate);
 
-    v_layout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    QHBoxLayout* calLayout = new QHBoxLayout;
+    calLayout->addLayout(calStartLayout);
+    calLayout->addLayout(calEndLayout);
 
-    v_layout->addWidget(filterDescription);
-    v_layout->addWidget(lineDescription);
+    mainLayout->addLayout(calLayout);
 
-    v_layout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    QPushButton* okButton      = new QPushButton("OK", this);
+    QPushButton* cancelButton  = new QPushButton("Cancel", this);
+    QHBoxLayout* buttonsLayout = new QHBoxLayout;
+    buttonsLayout->addWidget(okButton);
+    buttonsLayout->addWidget(cancelButton);
 
-    QHBoxLayout* h_layout = new QHBoxLayout;
-    h_layout->addWidget(okButton);
-    h_layout->addWidget(cancelButton);
+    mainLayout->addLayout(buttonsLayout);
 
-    v_layout->addLayout(h_layout);
+    setLayout(mainLayout);
 
-    setLayout(v_layout);
+    connect(okButton, &QPushButton::clicked, this, &FilterDialog::onOKButtonClicked);
+    connect(cancelButton, &QPushButton::clicked, this, &FilterDialog::onCancelButtonClicked);
+}
+
+void FilterDialog::onCancelButtonClicked()
+{
+    reject();
+}
+
+#include <iostream>
+
+void FilterDialog::onOKButtonClicked()
+{
+    FilterParams userChoice(lineName->text(), lineDescription->text(), cbxDefault->isChecked(), cbxProgress->isChecked(),
+                            cbxDone->isChecked(), minDate->selectedDate(), maxDate->selectedDate());
+
+    if (!(filterParams->isEqual(userChoice)))
+    {
+        emit userDataEntered(userChoice);
+    }
+
+    accept();
 }
