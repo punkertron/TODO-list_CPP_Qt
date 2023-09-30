@@ -118,3 +118,24 @@ void DbTaskController::setStatus(int32_t task_id, const char* task_status)
 
     taskMap[task_id].m_task_status = task_status;
 }
+
+void DbTaskController::setTask(int32_t task_id, const Task& task)
+{
+    QSqlQuery query(db);
+    query.prepare(R"(
+        UPDATE todo.tasks
+        SET name = :name,
+            description = :description,
+            deadline_date = :deadline_date
+        WHERE task_id = :task_id;
+    )");
+    query.bindValue(":name", task.m_name);
+    query.bindValue(":description", task.m_description);
+    query.bindValue(":deadline_date", task.m_deadline_date);
+    query.bindValue(":task_id", task_id);
+
+    if (!query.exec())
+        errorExec(query.lastError().text());
+
+    taskMap[task_id] = task;
+}

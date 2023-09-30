@@ -37,6 +37,8 @@ class DbTaskController final
     }
 
     void setStatus(int32_t task_id, const char* status_type);
+
+    void setTask(int32_t task_id, const Task& task);
 };
 
 #endif  // DB_TASK_CONTROLLER_HPP

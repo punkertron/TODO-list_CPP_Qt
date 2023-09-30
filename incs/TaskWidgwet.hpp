@@ -58,6 +58,7 @@ class TaskWidget : public QWidget
     void prepareWidgets();
     void prepareDescription();
     void formatWidgets();
+    void formatDescriptionLayout();
     void formatLayouts();
     void formatDescription();
     void removeDescription();
@@ -66,6 +67,7 @@ class TaskWidget : public QWidget
     void onResumeButtonClicked();
     void onPauseButtonClicked();
     void onDoneButtonClicked();
+    void onUserDataEntered(Task& task);
 
    public:
     TaskWidget(int32_t task_id, DbTaskController* dbTaskController, QWidget* parent = nullptr);

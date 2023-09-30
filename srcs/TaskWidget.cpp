@@ -1,3 +1,4 @@
+#include "../incs/ChangeParametersDialog.hpp"
 #include "../incs/TaskWidgwet.hpp"
 
 TaskWidget::TaskWidget(int32_t task_id, DbTaskController* dbTaskController, QWidget* parent) :
@@ -26,7 +27,10 @@ void TaskWidget::formatLayouts()
     vLayoutTask->addLayout(hLayout);
 
     if (isDescriptionExists)
+    {
         formatDescription();
+        formatDescriptionLayout();
+    }
 
     vLayoutButtons->addWidget(resume);
     vLayoutButtons->addWidget(pause);
@@ -93,7 +97,10 @@ void TaskWidget::formatDescription()
     QString descriptionStr = dbTaskController->getTask(task_id).m_description;
     QString descriptionRes = "Description: " + descriptionStr.left(250) + (descriptionStr.size() > 250 ? "..." : "");
     description->setText(descriptionRes);
+}
 
+void TaskWidget::formatDescriptionLayout()
+{
     vLayoutTask->addWidget(line);
     vLayoutTask->addWidget(description);
 }
@@ -172,6 +179,34 @@ void TaskWidget::mousePressEvent(QMouseEvent* event)
         setSelected(!isSelected());
 }
 
+void TaskWidget::onUserDataEntered(Task& task)
+{
+    dbTaskController->setTask(task_id, task);
+
+    formatWidgets();
+    if (isDescriptionExists)
+    {
+        if (task.m_description.size() == 0)
+        {
+            removeDescription();
+            isDescriptionExists = false;
+        }
+        else
+            formatDescription();
+    }
+    else
+    {
+        if (task.m_description.size() != 0)
+        {
+            isDescriptionExists = true;
+            prepareDescription();
+            formatDescription();
+            formatDescriptionLayout();
+        }
+    }
+    fillColour();
+}
+
 void TaskWidget::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu myMenu;
@@ -183,13 +218,11 @@ void TaskWidget::contextMenuEvent(QContextMenuEvent* event)
     {
         // TODO:
 
-        prepareDescription();
-        formatDescription();
+        ChangeParametersDialog dialog(dbTaskController->getTask(task_id));
+        Task task;
 
-        // vLayoutTask->removeWidget(description);
-        // vLayoutTask->removeWidget(line);
+        connect(&dialog, &ChangeParametersDialog::userDataEntered, this, &TaskWidget::onUserDataEntered);
 
-        // delete description;
-        // delete line;
+        (void)dialog.exec();
     }
 }

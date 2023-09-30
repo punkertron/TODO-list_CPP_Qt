@@ -1,14 +1,14 @@
-#ifndef ADD_TASK_DIALOG_HPP
-#define ADD_TASK_DIALOG_HPP
+#ifndef CHANGE_PARAMETERS_DIALOG_HPP
+#define CHANGE_PARAMETERS_DIALOG_HPP
 
 #include <QCalendarWidget>
 #include <QDialog>
 #include <QLineEdit>
 #include <QTextEdit>
 
-#include "../incs/Task.hpp"
+#include "Task.hpp"
 
-class AddTaskDialog : public QDialog
+class ChangeParametersDialog final : public QDialog
 {
     Q_OBJECT
 
@@ -22,11 +22,11 @@ class AddTaskDialog : public QDialog
     void onCancelButtonClicked();
 
    public:
-    AddTaskDialog(QWidget* parent = nullptr);
-    ~AddTaskDialog() = default;
+    ChangeParametersDialog() = delete;
+    ChangeParametersDialog(const Task& task);
 
    signals:
     void userDataEntered(Task& task);
 };
 
-#endif  // ADD_TASK_DIALOG_HPP
+#endif  // CHANGE_PARAMETERS_DIALOG_HPP
