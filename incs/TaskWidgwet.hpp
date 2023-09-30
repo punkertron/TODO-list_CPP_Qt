@@ -13,8 +13,6 @@ class TaskWidget : public QWidget
    private:
     DbTaskController* dbTaskController;
     int32_t task_id;
-    QString m_task_status;
-    QDate deadline_date;
 
     bool selected = false;
 
@@ -43,7 +41,7 @@ class TaskWidget : public QWidget
     void onDoneButtonClicked();
 
    public:
-    TaskWidget(const Task& task, DbTaskController* dbTaskController, QWidget* parent = nullptr);
+    TaskWidget(int32_t task_id, DbTaskController* dbTaskController, QWidget* parent = nullptr);
 
     bool isSelected() const
     {

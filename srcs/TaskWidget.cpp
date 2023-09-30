@@ -6,34 +6,32 @@
 
 #include "../incs/TaskWidgwet.hpp"
 
-TaskWidget::TaskWidget(const Task& task, DbTaskController* dbTaskController, QWidget* parent) :
-    QWidget(parent),
-    dbTaskController(dbTaskController),
-    task_id(task.task_id),
-    m_task_status(task.m_task_status),
-    deadline_date(task.m_deadline_date)
+TaskWidget::TaskWidget(int32_t task_id, DbTaskController* dbTaskController, QWidget* parent) :
+    QWidget(parent), dbTaskController(dbTaskController), task_id(task_id)
 {
-    QString res  = QString("Task: <b>%1</b>").arg(task.m_name.left(40) + (task.m_name.size() > 40 ? "..." : ""));
-    QLabel* name = new QLabel(res);
+    QString nameStr = dbTaskController->getTask(task_id).m_name;
+    QString res     = QString("Task: <b>%1</b>").arg(nameStr.left(40) + (nameStr.size() > 40 ? "..." : ""));
+    QLabel* name    = new QLabel(res);
     name->setTextFormat(Qt::RichText);
     name->setIndent(10);
 
-    QString deadlineStr   = QString("Deadline: <b>%1</b>").arg(deadline_date.toString("d MMM, dddd"));
+    QDate date            = dbTaskController->getTask(task_id).m_deadline_date;
+    QString deadlineStr   = QString("Deadline: <b>%1</b>").arg(date.toString("d MMM, dddd"));
     QLabel* deadline_date = new QLabel(deadlineStr);
     deadline_date->setTextFormat(Qt::RichText);
     deadline_date->setStyleSheet("margin-right: 10px;");
 
     QLabel* description;
     QWidget* line;
-    if (task.m_description.size())  // no descr. if empty
+    QString descriptionStr = dbTaskController->getTask(task_id).m_description;
+    if (descriptionStr.size())  // no descr. if empty
     {
         line = new QWidget;
         line->setFixedHeight(2);
         line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         line->setStyleSheet(QString("margin-right: 10px; background-color: #000000;"));
 
-        description =
-            new QLabel("Description: " + task.m_description.left(250) + (task.m_description.size() > 250 ? "..." : ""));
+        description = new QLabel("Description: " + descriptionStr.left(250) + (descriptionStr.size() > 250 ? "..." : ""));
         description->setWordWrap(true);
         description->setIndent(10);
         description->setStyleSheet("margin-right: 10px;");
@@ -47,7 +45,7 @@ TaskWidget::TaskWidget(const Task& task, DbTaskController* dbTaskController, QWi
     QVBoxLayout* vLayoutTask = new QVBoxLayout;
     vLayoutTask->addLayout(hLayout);
 
-    if (task.m_description.size())
+    if (descriptionStr.size())
     {
         vLayoutTask->addWidget(line);
         vLayoutTask->addWidget(description);
@@ -90,7 +88,6 @@ void TaskWidget::onResumeButtonClicked()
 {
     const char* s = "in progress";
     dbTaskController->setStatus(task_id, s);
-    m_task_status = s;
     fillColour();
 }
 
@@ -98,7 +95,6 @@ void TaskWidget::onPauseButtonClicked()
 {
     const char* s = "default";
     dbTaskController->setStatus(task_id, s);
-    m_task_status = s;
     fillColour();
 }
 
@@ -106,17 +102,18 @@ void TaskWidget::onDoneButtonClicked()
 {
     const char* s = "done";
     dbTaskController->setStatus(task_id, s);
-    m_task_status = s;
     fillColour();
 }
 
 void TaskWidget::fillColour()
 {
-    if (m_task_status == "default" && deadline_date < QDate::currentDate())
+    QString statusStr = dbTaskController->getTask(task_id).m_task_status;
+    QDate date        = dbTaskController->getTask(task_id).m_deadline_date;
+    if (statusStr == "default" && date < QDate::currentDate())
         setStyleSheet("background-color:  #FF855B;");  // #FE5733
-    else if (m_task_status == "default")
+    else if (statusStr == "default")
         setStyleSheet("background-color: #FEFEFE;");
-    else if (m_task_status == "in progress")
+    else if (statusStr == "in progress")
         setStyleSheet("background-color: #FEF233;");
     else  // done
         setStyleSheet("background-color: #33FE39;");

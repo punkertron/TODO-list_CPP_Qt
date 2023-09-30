@@ -37,9 +37,9 @@ void DbTaskController::retrieveTasks()
     {
         while (query.next())
         {
-            Task task(query.value(0).toInt(), query.value(1).toString(), query.value(2).toString(), query.value(3).toDate(),
+            Task task(query.value(1).toString(), query.value(2).toString(), query.value(3).toDate(),
                       query.value(4).toString());
-            taskList.push_front(std::move(task));
+            taskMap[query.value(0).toInt()] = std::move(task);
         }
     }
     else
@@ -64,10 +64,11 @@ void DbTaskController::errorExec(const QString& lastErrorText)
 
 void DbTaskController::addNewTask(Task& task)
 {
-    if (taskList.size() == 0)
-        task.task_id = 0;
+    int32_t idNewTask;
+    if (taskMap.isEmpty())
+        idNewTask = 0;
     else
-        task.task_id = taskList.front().task_id + 1;
+        idNewTask = taskMap.lastKey() + 1;
 
     QSqlQuery query(db);
     query.prepare(R"(
@@ -75,7 +76,7 @@ void DbTaskController::addNewTask(Task& task)
         VALUES (:task_id, :name, :description, :deadline_date);
     )");
 
-    query.bindValue(":task_id", task.task_id);
+    query.bindValue(":task_id", idNewTask);
     query.bindValue(":name", task.m_name);
     query.bindValue(":description", task.m_description);
     query.bindValue(":deadline_date", task.m_deadline_date);
@@ -83,7 +84,7 @@ void DbTaskController::addNewTask(Task& task)
     if (!query.exec())
         errorExec(query.lastError().text());
 
-    taskList.push_front(std::move(task));
+    taskMap[idNewTask] = std::move(task);
 }
 
 void DbTaskController::deleteTask(int32_t task_id)
@@ -98,11 +99,7 @@ void DbTaskController::deleteTask(int32_t task_id)
     if (!query.exec())
         errorExec(query.lastError().text());
 
-    taskList.removeIf(
-        [task_id](const Task& t)
-        {
-            return t.task_id == task_id;
-        });
+    taskMap.remove(task_id);
 }
 
 void DbTaskController::setStatus(int32_t task_id, const char* task_status)
@@ -119,14 +116,5 @@ void DbTaskController::setStatus(int32_t task_id, const char* task_status)
     if (!query.exec())
         errorExec(query.lastError().text());
 
-    auto it = taskList.begin(), end = taskList.end();
-    while (it != end)
-    {
-        if ((*it).task_id == task_id)
-        {
-            (*it).m_task_status = task_status;
-            break;
-        }
-        ++it;
-    }
+    taskMap[task_id].m_task_status = task_status;
 }

@@ -18,7 +18,7 @@ void MainWindow::onUserDataEntered(Task &task)
 {
     dbTaskController->addNewTask(task);
 
-    addTaskToScrollArea(dbTaskController->getFrontTask());
+    addTaskToScrollArea(dbTaskController->getLastTask());
 }
 
 void MainWindow::addNewTask()
@@ -130,17 +130,15 @@ MainWindow::MainWindow(DbTaskController *dbTaskController, QWidget *parent) :
 
 void MainWindow::showTaskFromDb()
 {
-    auto l = dbTaskController->getListTask();
-
-    for (auto crit = l.crbegin(), crend = l.crend(); crit != crend; ++crit)
+    for (const auto &[key, value] : dbTaskController->getMapTask().toStdMap())
     {
-        addTaskToScrollArea(*crit);
+        addTaskToScrollArea(key);
     }
 }
 
-void MainWindow::addTaskToScrollArea(const Task &task)
+void MainWindow::addTaskToScrollArea(int32_t task_id)
 {
-    TaskWidget *taskWidget = new TaskWidget(task, dbTaskController /*, this*/);
+    TaskWidget *taskWidget = new TaskWidget(task_id, dbTaskController /*, this*/);
     scrollLayout->insertWidget(0, taskWidget, 0, Qt::AlignTop);
     scrollLayout->addStretch();
 }

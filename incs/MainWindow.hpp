@@ -23,7 +23,7 @@ class MainWindow : public QMainWindow
     QVBoxLayout *scrollLayout;
 
     void setCommands(QWidget *parent);
-    void addTaskToScrollArea(const Task &task);
+    void addTaskToScrollArea(int32_t task_id);
     void showTaskFromDb();
 
    private slots:
