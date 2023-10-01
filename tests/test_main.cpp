@@ -40,6 +40,8 @@ class TestDbTaskController : public QObject
         v.emplace_back("hello"      , "SoMe TeXT "      , QDate(2023, 9, 1));
         v.emplace_back("hello"      , "some text"       , QDate(2023, 8, 1)); // done
 
+        c.setFilterVisibleAll(); // just for test that there is no crash
+        
         for (auto t : v)  // not &
             c.addNewTask(t);
 

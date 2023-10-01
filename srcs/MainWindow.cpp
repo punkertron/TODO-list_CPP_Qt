@@ -30,14 +30,40 @@ MainWindow::MainWindow(DbTaskController *dbTaskController, QWidget *parent) :
 
     widget->setLayout(vMainLayout);
 
-    // TODO:
-    // QMenuBar *menuBar = new QMenuBar(this);
-    // auto m_pSettings  = new QMenu(this);
-    // menuBar->addMenu(m_pSettings);
-    // m_pSettings->setTitle("Settings");
-    // setMenuBar(menuBar);
-
+    setMenu();
     showTaskFromDb();
+}
+
+void MainWindow::setMenu()
+{
+    QMenuBar *menuBar = new QMenuBar(this);
+
+    QMenu *settingsMenu    = menuBar->addMenu("Settings");
+    QAction *settingAction = new QAction(QIcon("./icons/smile.png"), "No settings :)", this);
+    settingsMenu->addAction(settingAction);
+    connect(settingAction, &QAction::triggered, this, &MainWindow::showSettingsDialog);
+
+    QMenu *aboutMenu     = menuBar->addMenu("Help");
+    QAction *aboutAction = new QAction(QIcon("./icons/about.png"), "About", this);
+    aboutMenu->addAction(aboutAction);
+    connect(aboutAction, &QAction::triggered, this, &MainWindow::showAboutDialog);
+
+    setMenuBar(menuBar);
+}
+
+void MainWindow::showSettingsDialog()
+{
+    QString warningText = "<br>I told you there's no settings!";
+
+    QMessageBox::warning(this, "Warning!!!", warningText);
+}
+
+void MainWindow::showAboutDialog()
+{
+    QString aboutText = "<br>This is the best TODO-list in the world!<br><br>";
+    aboutText += "Use and Enjoy!<br>";
+
+    QMessageBox::about(this, "About", aboutText);
 }
 
 void MainWindow::onAddNewTask(Task &task)
@@ -103,7 +129,6 @@ void MainWindow::removeDefaultFilterButton()
 void MainWindow::addNewTask()
 {
     AddTaskDialog dialog;
-    Task task;
 
     connect(&dialog, &AddTaskDialog::userDataEntered, this, &MainWindow::onAddNewTask);
 

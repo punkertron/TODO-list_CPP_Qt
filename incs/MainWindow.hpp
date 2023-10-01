@@ -34,6 +34,7 @@ class MainWindow final : public QMainWindow
     void deleteAllTasks();
     void removeDefaultFilterButton();
     void createDefaultFilterButton();
+    void setMenu();
 
    private slots:
     void addNewTask();
@@ -43,6 +44,8 @@ class MainWindow final : public QMainWindow
     void onFilterTasks(FilterParams &filterParams);
     void onDefaultFilterClicked();
     void setFilterView();
+    void showAboutDialog();
+    void showSettingsDialog();
 
    public:
     MainWindow()                                        = delete;
