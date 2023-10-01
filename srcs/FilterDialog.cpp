@@ -6,67 +6,67 @@
 
 #include "../incs/FilterParams.hpp"
 
-FilterDialog::FilterDialog(FilterParams* filterParams, QWidget* parent) : QDialog(parent), filterParams(filterParams)
+FilterDialog::FilterDialog(FilterParams* filterParams, QWidget* parent) : QDialog(parent), m_filterParams(filterParams)
 {
     setWindowTitle("Filter Tasks");
     setMinimumSize(QSize(600, 500));
-    setWindowIcon(QIcon("../icons/filter_icon.png"));
+    setWindowIcon(QIcon("./icons/filter_icon.png"));
 
-    cbxDefault  = new QCheckBox("default", this);
-    cbxProgress = new QCheckBox("in progress", this);
-    cbxDone     = new QCheckBox("done", this);
-    cbxDefault->setChecked(filterParams->m_defaultTaskStatus);
-    cbxProgress->setChecked(filterParams->m_progressTaskStatus);
-    cbxDone->setChecked(filterParams->m_doneTaskStatus);
+    m_cbxDefault  = new QCheckBox("default", this);
+    m_cbxProgress = new QCheckBox("in progress", this);
+    m_cbxDone     = new QCheckBox("done", this);
+    m_cbxDefault->setChecked(filterParams->m_defaultTaskStatus);
+    m_cbxProgress->setChecked(filterParams->m_progressTaskStatus);
+    m_cbxDone->setChecked(filterParams->m_doneTaskStatus);
 
-    lineName        = new QLineEdit(filterParams->m_name, this);
-    lineDescription = new QLineEdit(filterParams->m_description, this);
+    m_lineName        = new QLineEdit(filterParams->m_name, this);
+    m_lineDescription = new QLineEdit(filterParams->m_description, this);
 
-    QVBoxLayout* mainLayout = new QVBoxLayout;
+    QVBoxLayout* vMainLayout = new QVBoxLayout;
 
-    mainLayout->addWidget(new QLabel("Select status (All by default):", this));
-    mainLayout->addWidget(cbxDefault);
-    mainLayout->addWidget(cbxProgress);
-    mainLayout->addWidget(cbxDone);
-    mainLayout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
-    mainLayout->addWidget(new QLabel("Enter name (case NON-sensitive, maybe NOT full):", this));
-    mainLayout->addWidget(lineName);
-    mainLayout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
-    mainLayout->addWidget(new QLabel("Enter description (case NON-sensitive, maybe NOT full):", this));
-    mainLayout->addWidget(lineDescription);
-    mainLayout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    vMainLayout->addWidget(new QLabel("Select status (All by default):", this));
+    vMainLayout->addWidget(m_cbxDefault);
+    vMainLayout->addWidget(m_cbxProgress);
+    vMainLayout->addWidget(m_cbxDone);
+    vMainLayout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    vMainLayout->addWidget(new QLabel("Enter name (case NON-sensitive, maybe NOT full):", this));
+    vMainLayout->addWidget(m_lineName);
+    vMainLayout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    vMainLayout->addWidget(new QLabel("Enter description (case NON-sensitive, maybe NOT full):", this));
+    vMainLayout->addWidget(m_lineDescription);
+    vMainLayout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed));
 
-    minDate = new QCalendarWidget(this);
-    maxDate = new QCalendarWidget(this);
+    m_minDate = new QCalendarWidget(this);
+    m_maxDate = new QCalendarWidget(this);
 
-    minDate->setFirstDayOfWeek(Qt::DayOfWeek::Monday);
-    maxDate->setFirstDayOfWeek(Qt::DayOfWeek::Monday);
-    minDate->setSelectedDate(filterParams->m_minDate);
-    maxDate->setSelectedDate(filterParams->m_maxDate);
+    m_minDate->setFirstDayOfWeek(Qt::DayOfWeek::Monday);
+    m_maxDate->setFirstDayOfWeek(Qt::DayOfWeek::Monday);
+    m_minDate->setSelectedDate(filterParams->m_minDate);
+    m_maxDate->setSelectedDate(filterParams->m_maxDate);
 
-    QVBoxLayout* calStartLayout = new QVBoxLayout;
-    calStartLayout->addWidget(new QLabel("Enter min. date:", this));
-    calStartLayout->addWidget(minDate);
+    QVBoxLayout* vMinDateLayout = new QVBoxLayout;
+    vMinDateLayout->addWidget(new QLabel("Enter min. date:", this));
+    vMinDateLayout->addWidget(m_minDate);
 
-    QVBoxLayout* calEndLayout = new QVBoxLayout;
-    calEndLayout->addWidget(new QLabel("Enter max. date:", this));
-    calEndLayout->addWidget(maxDate);
+    QVBoxLayout* vMaxDateLayout = new QVBoxLayout;
+    vMaxDateLayout->addWidget(new QLabel("Enter max. date:", this));
+    vMaxDateLayout->addWidget(m_maxDate);
 
-    QHBoxLayout* calLayout = new QHBoxLayout;
-    calLayout->addLayout(calStartLayout);
-    calLayout->addLayout(calEndLayout);
+    QHBoxLayout* hDatesLayout = new QHBoxLayout;
+    hDatesLayout->addLayout(vMinDateLayout);
+    hDatesLayout->addLayout(vMaxDateLayout);
 
-    mainLayout->addLayout(calLayout);
+    vMainLayout->addLayout(hDatesLayout);
 
-    QPushButton* okButton      = new QPushButton("OK", this);
-    QPushButton* cancelButton  = new QPushButton("Cancel", this);
-    QHBoxLayout* buttonsLayout = new QHBoxLayout;
-    buttonsLayout->addWidget(okButton);
-    buttonsLayout->addWidget(cancelButton);
+    QPushButton* okButton       = new QPushButton("OK", this);
+    QPushButton* cancelButton   = new QPushButton("Cancel", this);
+    QHBoxLayout* hButtonsLayout = new QHBoxLayout;
+    hButtonsLayout->addWidget(okButton);
+    hButtonsLayout->addWidget(cancelButton);
 
-    mainLayout->addLayout(buttonsLayout);
+    vMainLayout->addLayout(hButtonsLayout);
 
-    setLayout(mainLayout);
+    setLayout(vMainLayout);
 
     connect(okButton, &QPushButton::clicked, this, &FilterDialog::onOKButtonClicked);
     connect(cancelButton, &QPushButton::clicked, this, &FilterDialog::onCancelButtonClicked);
@@ -77,14 +77,13 @@ void FilterDialog::onCancelButtonClicked()
     reject();
 }
 
-#include <iostream>
-
 void FilterDialog::onOKButtonClicked()
 {
-    FilterParams userChoice(lineName->text(), lineDescription->text(), cbxDefault->isChecked(), cbxProgress->isChecked(),
-                            cbxDone->isChecked(), minDate->selectedDate(), maxDate->selectedDate());
+    FilterParams userChoice(m_lineName->text(), m_lineDescription->text(), m_cbxDefault->isChecked(),
+                            m_cbxProgress->isChecked(), m_cbxDone->isChecked(), m_minDate->selectedDate(),
+                            m_maxDate->selectedDate());
 
-    if (!(filterParams->isEqual(userChoice)))
+    if (!(m_filterParams->isEqual(userChoice)))
     {
         emit userDataEntered(userChoice);
     }

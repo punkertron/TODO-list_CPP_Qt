@@ -13,41 +13,40 @@
 #include "DbTaskController.hpp"
 #include "Task.hpp"
 
-class TaskWidget : public QWidget
+class TaskWidget final : public QWidget
 {
     Q_OBJECT
 
    private:
-    DbTaskController* dbTaskController;
-    int32_t task_id;
+    DbTaskController* m_dbTaskController;
+    int32_t m_task_id;
 
-    QLabel* name;
-    QLabel* deadline_date;
-    QLabel* description = nullptr;
-    QWidget* line       = nullptr;
+    QLabel* m_name;
+    QLabel* m_deadline_date;
+    QLabel* m_description = nullptr;
+    QWidget* m_line       = nullptr;
 
-    QHBoxLayout* hLayout;
-    QVBoxLayout* vLayoutTask;
-    QVBoxLayout* vLayoutButtons;
-    QHBoxLayout* mainLayout;
+    QHBoxLayout* m_hLayoutNameDate;
+    QVBoxLayout* m_vLayoutTask;
+    QVBoxLayout* m_vLayoutButtons;
+    QHBoxLayout* m_hMainLayout;
 
-    QPushButton* resume;
-    QPushButton* pause;
-    QPushButton* done;
+    QPushButton* m_resume;
+    QPushButton* m_pause;
+    QPushButton* m_done;
 
-    bool isDescriptionExists;
+    bool m_isDescriptionExists;
 
-    bool selected = false;
+    bool m_selected = false;
 
     void fillColour();
 
     void paintEvent(QPaintEvent* event) override;
-
     void mousePressEvent(QMouseEvent* event) override;
 
     void setSelected(bool selected)
     {
-        this->selected = selected;
+        this->m_selected = selected;
         update();  // Request widget repaint to reflect the change
     }
 
@@ -70,16 +69,22 @@ class TaskWidget : public QWidget
     void onUserDataEntered(Task& task);
 
    public:
+    TaskWidget()                                       = delete;
+    ~TaskWidget()                                      = default;
+    TaskWidget(const TaskWidget& /*other*/)            = delete;
+    TaskWidget(TaskWidget&& /*other*/)                 = delete;
+    TaskWidget& operator=(const TaskWidget& /*other*/) = delete;
+
     TaskWidget(int32_t task_id, DbTaskController* dbTaskController, QWidget* parent = nullptr);
 
     bool isSelected() const
     {
-        return selected;
+        return m_selected;
     }
 
     int32_t getTaskId() const
     {
-        return task_id;
+        return m_task_id;
     }
 };
 

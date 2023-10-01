@@ -3,9 +3,9 @@
 
 TaskWidget::TaskWidget(int32_t task_id, DbTaskController* dbTaskController, QWidget* parent) :
     QWidget(parent),
-    dbTaskController(dbTaskController),
-    task_id(task_id),
-    isDescriptionExists(dbTaskController->getTask(task_id).m_description.size())
+    m_dbTaskController(dbTaskController),
+    m_task_id(task_id),
+    m_isDescriptionExists(m_dbTaskController->getTask(task_id).m_description.size())
 {
     setButtons();
 
@@ -21,137 +21,137 @@ TaskWidget::TaskWidget(int32_t task_id, DbTaskController* dbTaskController, QWid
 
 void TaskWidget::formatLayouts()
 {
-    hLayout->addWidget(name, 1);
-    hLayout->addWidget(deadline_date, 0, Qt::AlignRight);
+    m_hLayoutNameDate->addWidget(m_name, 1);
+    m_hLayoutNameDate->addWidget(m_deadline_date, 0, Qt::AlignRight);
 
-    vLayoutTask->addLayout(hLayout);
+    m_vLayoutTask->addLayout(m_hLayoutNameDate);
 
-    if (isDescriptionExists)
+    if (m_isDescriptionExists)
     {
         formatDescription();
         formatDescriptionLayout();
     }
 
-    vLayoutButtons->addWidget(resume);
-    vLayoutButtons->addWidget(pause);
-    vLayoutButtons->addWidget(done);
+    m_vLayoutButtons->addWidget(m_resume);
+    m_vLayoutButtons->addWidget(m_pause);
+    m_vLayoutButtons->addWidget(m_done);
 
-    mainLayout->addLayout(vLayoutButtons);
-    mainLayout->addLayout(vLayoutTask);
+    m_hMainLayout->addLayout(m_vLayoutButtons);
+    m_hMainLayout->addLayout(m_vLayoutTask);
 }
 
 void TaskWidget::formatWidgets()
 {
-    QString nameStr = dbTaskController->getTask(task_id).m_name;
+    QString nameStr = m_dbTaskController->getTask(m_task_id).m_name;
     QString nameRes = QString("Task: <b>%1</b>").arg(nameStr.left(40) + (nameStr.size() > 40 ? "..." : ""));
-    name->setText(nameRes);
+    m_name->setText(nameRes);
 
-    QDate date          = dbTaskController->getTask(task_id).m_deadline_date;
+    QDate date          = m_dbTaskController->getTask(m_task_id).m_deadline_date;
     QString deadlineStr = QString("Deadline: <b>%1</b>").arg(date.toString("d MMM, dddd"));
-    deadline_date->setText(deadlineStr);
+    m_deadline_date->setText(deadlineStr);
 }
 
 void TaskWidget::setButtons()
 {
-    resume = new QPushButton(QIcon("../icons/resume.png"), "", this);
-    pause  = new QPushButton(QIcon("../icons/pause.png"), "", this);
-    done   = new QPushButton(QIcon("../icons/done.png"), "", this);
+    m_resume = new QPushButton(QIcon("./icons/resume.png"), "", this);
+    m_pause  = new QPushButton(QIcon("./icons/pause.png"), "", this);
+    m_done   = new QPushButton(QIcon("./icons/done.png"), "", this);
 
-    resume->setIconSize(QSize(30, 30));
-    pause->setIconSize(QSize(30, 30));
-    done->setIconSize(QSize(30, 30));
+    m_resume->setIconSize(QSize(30, 30));
+    m_pause->setIconSize(QSize(30, 30));
+    m_done->setIconSize(QSize(30, 30));
 
-    connect(resume, &QPushButton::clicked, this, &TaskWidget::onResumeButtonClicked);
-    connect(pause, &QPushButton::clicked, this, &TaskWidget::onPauseButtonClicked);
-    connect(done, &QPushButton::clicked, this, &TaskWidget::onDoneButtonClicked);
+    connect(m_resume, &QPushButton::clicked, this, &TaskWidget::onResumeButtonClicked);
+    connect(m_pause, &QPushButton::clicked, this, &TaskWidget::onPauseButtonClicked);
+    connect(m_done, &QPushButton::clicked, this, &TaskWidget::onDoneButtonClicked);
 }
 
 void TaskWidget::prepareWidgets()
 {
-    name          = new QLabel(this);
-    deadline_date = new QLabel(this);
+    m_name          = new QLabel(this);
+    m_deadline_date = new QLabel(this);
 
-    name->setTextFormat(Qt::RichText);
-    name->setIndent(10);
-    deadline_date->setTextFormat(Qt::RichText);
-    deadline_date->setStyleSheet("margin-right: 10px;");
+    m_name->setTextFormat(Qt::RichText);
+    m_name->setIndent(10);
+    m_deadline_date->setTextFormat(Qt::RichText);
+    m_deadline_date->setStyleSheet("margin-right: 10px;");
 
-    if (isDescriptionExists)
+    if (m_isDescriptionExists)
         prepareDescription();
 }
 
 void TaskWidget::prepareDescription()
 {
-    description = new QLabel(this);
-    line        = new QWidget(this);
-    description->setWordWrap(true);
-    description->setIndent(10);
-    description->setStyleSheet("margin-right: 10px;");
-    line->setFixedHeight(2);
-    line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    line->setStyleSheet(QString("margin-right: 10px; background-color: #000000;"));
+    m_description = new QLabel(this);
+    m_line        = new QWidget(this);
+    m_description->setWordWrap(true);
+    m_description->setIndent(10);
+    m_description->setStyleSheet("margin-right: 10px;");
+    m_line->setFixedHeight(2);
+    m_line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_line->setStyleSheet(QString("margin-right: 10px; background-color: #000000;"));
 }
 
 void TaskWidget::formatDescription()
 {
-    QString descriptionStr = dbTaskController->getTask(task_id).m_description;
+    QString descriptionStr = m_dbTaskController->getTask(m_task_id).m_description;
     QString descriptionRes = "Description: " + descriptionStr.left(250) + (descriptionStr.size() > 250 ? "..." : "");
-    description->setText(descriptionRes);
+    m_description->setText(descriptionRes);
 }
 
 void TaskWidget::formatDescriptionLayout()
 {
-    vLayoutTask->addWidget(line);
-    vLayoutTask->addWidget(description);
+    m_vLayoutTask->addWidget(m_line);
+    m_vLayoutTask->addWidget(m_description);
 }
 
 void TaskWidget::removeDescription()
 {
-    vLayoutTask->removeWidget(description);
-    vLayoutTask->removeWidget(line);
+    m_vLayoutTask->removeWidget(m_description);
+    m_vLayoutTask->removeWidget(m_line);
 
-    delete description;
-    delete line;
+    delete m_description;
+    delete m_line;
 }
 
 void TaskWidget::prepareLayouts()
 {
-    hLayout        = new QHBoxLayout;
-    vLayoutTask    = new QVBoxLayout;
-    vLayoutButtons = new QVBoxLayout;
-    mainLayout     = new QHBoxLayout(this);
+    m_hLayoutNameDate = new QHBoxLayout;
+    m_vLayoutTask     = new QVBoxLayout;
+    m_vLayoutButtons  = new QVBoxLayout;
+    m_hMainLayout     = new QHBoxLayout(this);
 
-    hLayout->setSpacing(0);
-    vLayoutTask->setSpacing(0);
-    vLayoutButtons->setSpacing(0);
-    mainLayout->setSpacing(10);
+    m_hLayoutNameDate->setSpacing(0);
+    m_vLayoutTask->setSpacing(0);
+    m_vLayoutButtons->setSpacing(0);
+    m_hMainLayout->setSpacing(10);
 }
 
 void TaskWidget::onResumeButtonClicked()
 {
     const char* s = "in progress";
-    dbTaskController->setStatus(task_id, s);
+    m_dbTaskController->setStatus(m_task_id, s);
     fillColour();
 }
 
 void TaskWidget::onPauseButtonClicked()
 {
     const char* s = "default";
-    dbTaskController->setStatus(task_id, s);
+    m_dbTaskController->setStatus(m_task_id, s);
     fillColour();
 }
 
 void TaskWidget::onDoneButtonClicked()
 {
     const char* s = "done";
-    dbTaskController->setStatus(task_id, s);
+    m_dbTaskController->setStatus(m_task_id, s);
     fillColour();
 }
 
 void TaskWidget::fillColour()
 {
-    QString statusStr = dbTaskController->getTask(task_id).m_task_status;
-    QDate date        = dbTaskController->getTask(task_id).m_deadline_date;
+    QString statusStr = m_dbTaskController->getTask(m_task_id).m_task_status;
+    QDate date        = m_dbTaskController->getTask(m_task_id).m_deadline_date;
 
     if (statusStr == "default" && date < QDate::currentDate())
         setStyleSheet("background-color:  #FF855B;");
@@ -163,10 +163,11 @@ void TaskWidget::fillColour()
         setStyleSheet("background-color: #33FE39;");
 }
 
+// coloгrs the selected task
 void TaskWidget::paintEvent(QPaintEvent* /*event*/)
 {
     QPainter painter(this);
-    if (selected)
+    if (m_selected)
         painter.fillRect(rect(), QColor("#B3D9FF"));
     else
         painter.fillRect(rect(), QColor("#FEFEFE"));
@@ -179,17 +180,18 @@ void TaskWidget::mousePressEvent(QMouseEvent* event)
         setSelected(!isSelected());
 }
 
+// A lot of checks for the presence of a description
 void TaskWidget::onUserDataEntered(Task& task)
 {
-    dbTaskController->setTask(task_id, task);
+    m_dbTaskController->setTask(m_task_id, task);
 
     formatWidgets();
-    if (isDescriptionExists)
+    if (m_isDescriptionExists)
     {
         if (task.m_description.size() == 0)
         {
             removeDescription();
-            isDescriptionExists = false;
+            m_isDescriptionExists = false;
         }
         else
             formatDescription();
@@ -198,7 +200,7 @@ void TaskWidget::onUserDataEntered(Task& task)
     {
         if (task.m_description.size() != 0)
         {
-            isDescriptionExists = true;
+            m_isDescriptionExists = true;
             prepareDescription();
             formatDescription();
             formatDescriptionLayout();
@@ -210,19 +212,15 @@ void TaskWidget::onUserDataEntered(Task& task)
 void TaskWidget::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu myMenu;
-    QAction action(QIcon("../icons/change_parameters.png"), "Change task parameters");
+    QAction action(QIcon("./icons/change_parameters.png"), "Change task parameters");
     myMenu.addAction(&action);
 
     QAction* selectedItem = myMenu.exec(event->globalPos());
     if (selectedItem)
     {
-        // TODO:
-
-        ChangeParametersDialog dialog(dbTaskController->getTask(task_id));
-        Task task;
+        ChangeParametersDialog dialog(m_dbTaskController->getTask(m_task_id));
 
         connect(&dialog, &ChangeParametersDialog::userDataEntered, this, &TaskWidget::onUserDataEntered);
-
         (void)dialog.exec();
     }
 }

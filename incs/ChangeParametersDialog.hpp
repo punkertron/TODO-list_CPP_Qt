@@ -13,16 +13,21 @@ class ChangeParametersDialog final : public QDialog
     Q_OBJECT
 
    private:
-    QLineEdit* m_Enter_name;
-    QTextEdit* m_Enter_description;
-    QCalendarWidget* m_Enter_deadline_date;
+    QLineEdit* m_lineName;
+    QTextEdit* m_textDescription;
+    QCalendarWidget* m_calDate;
 
    private slots:
     void onOKButtonClicked();
     void onCancelButtonClicked();
 
    public:
-    ChangeParametersDialog() = delete;
+    ChangeParametersDialog()                                                   = delete;
+    ~ChangeParametersDialog()                                                  = default;
+    ChangeParametersDialog(const ChangeParametersDialog& /*other*/)            = delete;
+    ChangeParametersDialog(ChangeParametersDialog&& /*other*/)                 = delete;
+    ChangeParametersDialog& operator=(const ChangeParametersDialog& /*other*/) = delete;
+
     ChangeParametersDialog(const Task& task);
 
    signals:

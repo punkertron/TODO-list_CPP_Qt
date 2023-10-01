@@ -8,28 +8,33 @@
 
 #include "../incs/FilterParams.hpp"
 
-class FilterDialog : public QDialog
+class FilterDialog final : public QDialog
 {
     Q_OBJECT
 
    private:
-    FilterParams* filterParams;
+    FilterParams* m_filterParams;
 
-    QLineEdit* lineName;
-    QLineEdit* lineDescription;
-    QCalendarWidget* minDate;
-    QCalendarWidget* maxDate;
-    QCheckBox* cbxDefault;
-    QCheckBox* cbxProgress;
-    QCheckBox* cbxDone;
+    QLineEdit* m_lineName;
+    QLineEdit* m_lineDescription;
+    QCalendarWidget* m_minDate;
+    QCalendarWidget* m_maxDate;
+    QCheckBox* m_cbxDefault;
+    QCheckBox* m_cbxProgress;
+    QCheckBox* m_cbxDone;
 
    private slots:
     void onOKButtonClicked();
     void onCancelButtonClicked();
 
    public:
+    FilterDialog()                                         = delete;
+    ~FilterDialog()                                        = default;
+    FilterDialog(const FilterDialog& /*other*/)            = delete;
+    FilterDialog(FilterDialog&& /*other*/)                 = delete;
+    FilterDialog& operator=(const FilterDialog& /*other*/) = delete;
+
     FilterDialog(FilterParams* filterParams, QWidget* parent = nullptr);
-    ~FilterDialog() = default;
 
    signals:
     void userDataEntered(FilterParams& task);

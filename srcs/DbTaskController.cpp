@@ -3,19 +3,19 @@
 #include <QMessageBox>
 #include <iostream>
 
-DbTaskController::DbTaskController() : db(QSqlDatabase::addDatabase("QPSQL"))
+DbTaskController::DbTaskController() : m_db(QSqlDatabase::addDatabase("QPSQL"))
 {
     // getenv() ?
 
-    db.setHostName("127.0.0.1");
-    db.setDatabaseName("todo_db");
-    db.setUserName("todo_user");
-    db.setPassword("todo_user_password");
+    m_db.setHostName("127.0.0.1");
+    m_db.setDatabaseName("todo_db");
+    m_db.setUserName("todo_user");
+    m_db.setPassword("todo_user_password");
 
-    if (!db.open())
+    if (!m_db.open())
     {
         QString errorMessage = "Error: Failed to connect to the database\n";
-        errorMessage += "Error details: " + db.lastError().text();
+        errorMessage += "Error details: " + m_db.lastError().text();
         QMessageBox::critical(nullptr, "Database Connection Error", errorMessage);
         exit(EXIT_FAILURE);
     }
@@ -26,7 +26,7 @@ DbTaskController::DbTaskController() : db(QSqlDatabase::addDatabase("QPSQL"))
 
 void DbTaskController::retrieveTasks()
 {
-    QSqlQuery query(db);
+    QSqlQuery query(m_db);
     query.prepare(R"(
         SELECT task_id, name, description, deadline_date, task_status
         FROM todo.tasks
@@ -39,7 +39,7 @@ void DbTaskController::retrieveTasks()
         {
             Task task(query.value(1).toString(), query.value(2).toString(), query.value(3).toDate(),
                       query.value(4).toString());
-            taskMap[query.value(0).toInt()] = std::move(task);
+            m_taskMap[query.value(0).toInt()] = std::move(task);
         }
     }
     else
@@ -57,12 +57,12 @@ void DbTaskController::errorExec(const QString& lastErrorText)
 void DbTaskController::addNewTask(Task& task)
 {
     int32_t idNewTask;
-    if (taskMap.isEmpty())
+    if (m_taskMap.isEmpty())
         idNewTask = 0;
     else
-        idNewTask = taskMap.lastKey() + 1;
+        idNewTask = m_taskMap.lastKey() + 1;
 
-    QSqlQuery query(db);
+    QSqlQuery query(m_db);
     query.prepare(R"(
         INSERT INTO todo.tasks (task_id, name, description, deadline_date)
         VALUES (:task_id, :name, :description, :deadline_date);
@@ -76,12 +76,12 @@ void DbTaskController::addNewTask(Task& task)
     if (!query.exec())
         errorExec(query.lastError().text());
 
-    taskMap[idNewTask] = std::move(task);
+    m_taskMap[idNewTask] = std::move(task);
 }
 
 void DbTaskController::deleteTask(int32_t task_id)
 {
-    QSqlQuery query(db);
+    QSqlQuery query(m_db);
     query.prepare(R"(
         DELETE FROM todo.tasks
         WHERE task_id = :task_id;
@@ -91,12 +91,12 @@ void DbTaskController::deleteTask(int32_t task_id)
     if (!query.exec())
         errorExec(query.lastError().text());
 
-    taskMap.remove(task_id);
+    m_taskMap.remove(task_id);
 }
 
 void DbTaskController::setStatus(int32_t task_id, const char* task_status)
 {
-    QSqlQuery query(db);
+    QSqlQuery query(m_db);
     query.prepare(R"(
         UPDATE todo.tasks
         SET task_status = :task_status
@@ -108,12 +108,12 @@ void DbTaskController::setStatus(int32_t task_id, const char* task_status)
     if (!query.exec())
         errorExec(query.lastError().text());
 
-    taskMap[task_id].m_task_status = task_status;
+    m_taskMap[task_id].m_task_status = task_status;
 }
 
 void DbTaskController::setTask(int32_t task_id, const Task& task)
 {
-    QSqlQuery query(db);
+    QSqlQuery query(m_db);
     query.prepare(R"(
         UPDATE todo.tasks
         SET name = :name,
@@ -129,31 +129,33 @@ void DbTaskController::setTask(int32_t task_id, const Task& task)
     if (!query.exec())
         errorExec(query.lastError().text());
 
-    taskMap[task_id] = task;
+    m_taskMap[task_id] = task;
     setFilterVisible(task_id);
 }
 
 // check filter condition. if something wrong then isVisible = false
 void DbTaskController::setFilterVisible(int32_t task_id)
 {
-    Task task = taskMap[task_id];
+    Task task = m_taskMap[task_id];
 
-    bool a = filterParams.m_name == "" ? true : task.m_name.toLower().contains(filterParams.m_name.toLower());
-    bool b = filterParams.m_description == "" ? true
-                                              : task.m_description.toLower().contains(filterParams.m_description.toLower());
-    bool c = task.m_deadline_date >= filterParams.m_minDate;
-    bool d = task.m_deadline_date <= filterParams.m_maxDate;
-    bool e = (filterParams.m_defaultTaskStatus && task.m_task_status == "default") ||
-             (filterParams.m_progressTaskStatus && task.m_task_status == "in progress") ||
-             (filterParams.m_doneTaskStatus && task.m_task_status == "done");
+    bool a = m_filterParams.m_name == "" ? true : task.m_name.toLower().contains(m_filterParams.m_name.toLower());
+    bool b = m_filterParams.m_description == ""
+                 ? true
+                 : task.m_description.toLower().contains(m_filterParams.m_description.toLower());
+    bool c = task.m_deadline_date >= m_filterParams.m_minDate;
+    bool d = task.m_deadline_date <= m_filterParams.m_maxDate;
+    bool e = (m_filterParams.m_defaultTaskStatus && task.m_task_status == "default") ||
+             (m_filterParams.m_progressTaskStatus && task.m_task_status == "in progress") ||
+             (m_filterParams.m_doneTaskStatus && task.m_task_status == "done");
+
     if (a && b && c && d && e)
-        taskMap[task_id].isVisible = true;
+        m_taskMap[task_id].m_isVisible = true;
     else
-        taskMap[task_id].isVisible = false;
+        m_taskMap[task_id].m_isVisible = false;
 }
 
 void DbTaskController::setFilterVisibleAll()
 {
-    for (const auto& [key, value] : taskMap.toStdMap())
+    for (const auto& [key, value] : m_taskMap.toStdMap())
         setFilterVisible(key);
 }

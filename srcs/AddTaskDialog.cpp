@@ -12,35 +12,33 @@ AddTaskDialog::AddTaskDialog(QWidget* parent) : QDialog(parent)
 {
     setWindowTitle("Add New Task");
     setMinimumSize(QSize(400, 400));
-    setWindowIcon(QIcon("../icons/add_task.png"));
+    setWindowIcon(QIcon("./icons/add_task.png"));
 
-    m_Enter_name          = new QLineEdit(this);
-    m_Enter_description   = new QTextEdit(this);
-    m_Enter_deadline_date = new QCalendarWidget(this);
-    m_Enter_deadline_date->setFirstDayOfWeek(Qt::DayOfWeek::Monday);
+    m_lineName        = new QLineEdit(this);
+    m_textDescription = new QTextEdit(this);
+    m_calDate         = new QCalendarWidget(this);
+    m_calDate->setFirstDayOfWeek(Qt::DayOfWeek::Monday);
 
-    QVBoxLayout* mainLayout = new QVBoxLayout;
+    QPushButton* okButton       = new QPushButton("OK", this);
+    QPushButton* cancelButton   = new QPushButton("Cancel", this);
+    QHBoxLayout* hButtonsLayout = new QHBoxLayout;
+    hButtonsLayout->addWidget(okButton);
+    hButtonsLayout->addWidget(cancelButton);
 
-    mainLayout->addWidget(new QLabel("Enter Name:", this));
-    mainLayout->addWidget(m_Enter_name);
-    mainLayout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
-    mainLayout->addWidget(new QLabel("Enter Description (optional):", this));
-    mainLayout->addWidget(m_Enter_description);
-    mainLayout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
-    mainLayout->addWidget(new QLabel("Select Deadline (default - Today):", this));
-    mainLayout->addWidget(m_Enter_deadline_date);
-    mainLayout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    QVBoxLayout* vMainLayout = new QVBoxLayout;
 
-    QPushButton* okButton     = new QPushButton("OK", this);
-    QPushButton* cancelButton = new QPushButton("Cancel", this);
+    vMainLayout->addWidget(new QLabel("Enter Name:", this));
+    vMainLayout->addWidget(m_lineName);
+    vMainLayout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    vMainLayout->addWidget(new QLabel("Enter Description (optional):", this));
+    vMainLayout->addWidget(m_textDescription);
+    vMainLayout->addSpacerItem(new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    vMainLayout->addWidget(new QLabel("Select Deadline (default - Today):", this));
+    vMainLayout->addWidget(m_calDate);
+    vMainLayout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed));
+    vMainLayout->addLayout(hButtonsLayout);
 
-    QHBoxLayout* buttonsLayout = new QHBoxLayout;
-    buttonsLayout->addWidget(okButton);
-    buttonsLayout->addWidget(cancelButton);
-
-    mainLayout->addLayout(buttonsLayout);
-
-    setLayout(mainLayout);
+    setLayout(vMainLayout);
 
     connect(okButton, &QPushButton::clicked, this, &AddTaskDialog::onOKButtonClicked);
     connect(cancelButton, &QPushButton::clicked, this, &AddTaskDialog::onCancelButtonClicked);
@@ -48,13 +46,13 @@ AddTaskDialog::AddTaskDialog(QWidget* parent) : QDialog(parent)
 
 void AddTaskDialog::onOKButtonClicked()
 {
-    if (m_Enter_name->text().isEmpty())
+    if (m_lineName->text().isEmpty())
     {
         QMessageBox::critical(this, "Invalid Input", "Please enter Name.");
         return;
     }
 
-    Task task(m_Enter_name->text(), m_Enter_description->toPlainText(), m_Enter_deadline_date->selectedDate());
+    Task task(m_lineName->text(), m_textDescription->toPlainText(), m_calDate->selectedDate());
 
     emit userDataEntered(task);
 

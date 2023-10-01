@@ -14,7 +14,11 @@ struct FilterParams
     QDate m_minDate           = QDate(1900, 1, 1);
     QDate m_maxDate           = QDate(4444, 1, 1);
 
-    FilterParams() = default;
+    FilterParams()                                         = default;
+    ~FilterParams()                                        = default;
+    FilterParams(const FilterParams& /*other*/)            = default;
+    FilterParams(FilterParams&& /*other*/)                 = default;
+    FilterParams& operator=(const FilterParams& /*other*/) = default;
 
     FilterParams(const QString& name, const QString& description, bool defaultTaskStatus, bool progressTaskStatus,
                  bool doneTaskStatus, const QDate& minDate, const QDate& maxDate) :

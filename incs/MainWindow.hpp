@@ -5,27 +5,27 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QVBoxLayout>
 
 #include "../incs/DbTaskController.hpp"
 #include "../incs/FilterParams.hpp"
 #include "../incs/Task.hpp"
 
-class MainWindow : public QMainWindow
+class MainWindow final : public QMainWindow
 {
     Q_OBJECT
 
    private:
-    DbTaskController *dbTaskController;
+    DbTaskController *m_dbTaskController;
 
-    FilterParams filterParams;
-    bool isFiltered = false;
+    FilterParams m_filterParams;
+    bool m_isFiltered = false;
 
-    QHBoxLayout *commands_Layout;
-    QHBoxLayout *filter_sort_Layout;
-    QSpacerItem *spacerItem;
-    QScrollArea *scroll_Area;
-    QVBoxLayout *scrollLayout;
-    QPushButton *defaultFilter;
+    QHBoxLayout *m_hCommandsLayout;
+    QHBoxLayout *m_hFilterSortLayout;
+    QScrollArea *m_scrollArea;
+    QVBoxLayout *m_vScrollLayout;
+    QPushButton *m_defaultFilter;
 
     void setCommands();
     void setScrollArea();
@@ -37,7 +37,7 @@ class MainWindow : public QMainWindow
 
    private slots:
     void addNewTask();
-    void deleteTasks();
+    void deleteSelectedTasks();
     void filterTasks();
     void onAddNewTask(Task &task);
     void onFilterTasks(FilterParams &filterParams);
@@ -45,8 +45,13 @@ class MainWindow : public QMainWindow
     void setFilterView();
 
    public:
+    MainWindow()                                        = delete;
+    ~MainWindow()                                       = default;
+    MainWindow(const MainWindow & /*other*/)            = delete;
+    MainWindow(MainWindow && /*other*/)                 = delete;
+    MainWindow &operator=(const MainWindow & /*other*/) = delete;
+
     MainWindow(DbTaskController *dbTaskController, QWidget *parent = nullptr);
-    ~MainWindow() = default;
 };
 
 #endif  // MAIN_WINDOW_HPP

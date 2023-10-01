@@ -8,14 +8,14 @@
 
 #include "../incs/Task.hpp"
 
-class AddTaskDialog : public QDialog
+class AddTaskDialog final : public QDialog
 {
     Q_OBJECT
 
    private:
-    QLineEdit* m_Enter_name;
-    QTextEdit* m_Enter_description;
-    QCalendarWidget* m_Enter_deadline_date;
+    QLineEdit* m_lineName;
+    QTextEdit* m_textDescription;
+    QCalendarWidget* m_calDate;
 
    private slots:
     void onOKButtonClicked();
@@ -23,7 +23,12 @@ class AddTaskDialog : public QDialog
 
    public:
     AddTaskDialog(QWidget* parent = nullptr);
-    ~AddTaskDialog() = default;
+    // AddTaskDialog()                                          = default;
+
+    ~AddTaskDialog()                                         = default;
+    AddTaskDialog(const AddTaskDialog& /*other*/)            = delete;
+    AddTaskDialog(AddTaskDialog&& /*other*/)                 = delete;
+    AddTaskDialog& operator=(const AddTaskDialog& /*other*/) = delete;
 
    signals:
     void userDataEntered(Task& task);
