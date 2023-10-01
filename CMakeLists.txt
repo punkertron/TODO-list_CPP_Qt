@@ -27,7 +27,7 @@ set(SOURCES
     srcs/MainWindow.cpp
 )
 
-SET(HEADERS
+set(HEADERS
     incs/AddTaskDialog.hpp
     incs/DbTaskController.hpp
     incs/FilterParams.hpp
