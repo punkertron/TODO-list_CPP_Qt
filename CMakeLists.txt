@@ -10,9 +10,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(DEBUG_MODE "Enable debug build" OFF)
 
 if(DEBUG_MODE)
-    set(CMAKE_CXX_FLAGS  "-std=c++17 -Wall -Wextra -g3 -fsanitize=address -fsanitize=leak -fsanitize=undefined")
+    set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -g3 -fsanitize=address -fsanitize=leak -fsanitize=undefined")
 else()
-    set(CMAKE_CXX_FLAGS  "-std=c++17 -Wall -Wextra -O2")
+    set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -O2")
 endif()
 
 qt_standard_project_setup()
