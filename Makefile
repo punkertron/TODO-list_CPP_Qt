@@ -25,6 +25,6 @@ clean:
 	${RM} ${BUILD_DIR} ${TESTS_DIR}/${BUILD_DIR}
 
 fclean: clean
-	${RM} ${NAME} {TESTS_NAME}
+	${RM} ${NAME} ${TESTS_NAME}
 
 .PHONY: all ${NAME} debug tests clean fclean
