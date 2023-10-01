@@ -13,4 +13,4 @@ sudo -u $DB_USER psql -q -d $TODO_DB_NAME -c "DROP TYPE $TODO_TYPE_STATUS;"
 sudo -u $DB_USER psql -q -c "DROP DATABASE $TODO_DB_NAME;"
 sudo -u $DB_USER psql -q -c "DROP USER $TODO_USER;"
 
-echo "The TODO_APP database has been cleaned!"
+echo "The TODO-list database has been cleaned!"

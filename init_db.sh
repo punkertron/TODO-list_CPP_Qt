@@ -16,4 +16,4 @@ sudo -u $DB_USER psql -q -d $TODO_DB_NAME -f $SQL_SCRIPT
 
 sudo -u $DB_USER psql -q -c "GRANT ALL PRIVILEGES ON DATABASE $TODO_DB_NAME TO $TODO_USER;"
 
-echo "The database is prepared! Now you can use the TODO app."
+echo "The database is prepared! Now you can use the TODO-list app."
