@@ -1,6 +1,6 @@
 # TODO List Application with Qt
 
-**(ТУТ БУДЕТ GIF)**
+![todo-gif](assets/todo.gif)
 
 ---
 
@@ -19,22 +19,19 @@
 
 Для того, чтобы задачи не удалялись с закрытием приложения, я добавляю их в базу данных PostgreSQL.
 
-Из других особенностей:
+Из бонусов:
 - Сортировка задач.
 - Установка флажков "В работе", "На паузе" и "Выполнено"
 - Подсветка задач, в том числе просроченных
 
+---
 
 ### Установка
-Разработка велась на Debian 12 с использованием только стандартных пакетов.
+Разработка велась на **Debian 12** с использованием только стандартных пакетов.
 
-Вам потребуется установить PostgreSQL, Qt6, CMake, Make
-```bash
-sudo apt install g++ make cmake postgresql qt6-base-dev libqt6sql6-psql clang-format
-```
-Команда `clang-format` автоматически вызывается первой при каждой сборке проекта. Её можно отключить, удалив строки 44-50 и 54 из [CMakeLists.txt](CMakeLists.txt)
+**Важно**: команда `clang-format` автоматически вызывается первой при каждой сборке проекта. Её можно отключить, удалив строки 44-50 и 54 из [CMakeLists.txt](CMakeLists.txt)
 
-Затем нужно подготовить БД для работы (иначе программа будет завершаться с ошибкой):
+Сначала нужно подготовить БД для работы (иначе программа будет завершаться с ошибкой):
 ```bash
 bash init_db.sh
 ```
@@ -46,6 +43,28 @@ make
 ```bash
 ./TODO-list
 ```
+---
+
+Также протестирован запуск программы и на **Ubuntu**. Для этого потребуется:
+- Во-первых, установить нужные пакеты:
+
+```bash
+sudo apt install g++ make cmake postgresql qt6-base-dev libqt6sql6-psql clang-format libgl1-mesa-dev libglvnd-dev
+```
+- Во-вторых, может потребоваться понизить версию `cmake_minimum_required`. А также в [CMakeLists.txt](CMakeLists.txt) заменить `qt_standard_project_setup()` на:
+```bash
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+```
+- В-третьих, могут возникнуть проблемы с доступами у пользователя postgres. В таком случае выполнение `bash init_db.sh` будет сопровождаться странными сообщениями о Permission denied. Тогда надо построчно запустить каждую команду из файла [initial.sql](initial.sql):
+```bash
+sudo -u postgres psql -q -d todo_db -c ¨CREATE SCHEMA todo AUTHORIZATION todo_user;¨
+...
+sudo -u postgres psql -q -d todo_db -c ¨GRANT ALL ON ALL TABLES IN SCHEMA todo TO todo_user;¨
+```
+
+Теперь приложение точно запустится!
 
 ---
 
