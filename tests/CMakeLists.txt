@@ -20,6 +20,7 @@ set(HEADERS
     ../incs/DbTaskController.hpp
     ../incs/FilterParams.hpp
     ../incs/Task.hpp
+    ../incs/SortDialog.hpp
 )
 
 qt_add_executable(TODO-tests ${SOURCES} ${HEADERS})

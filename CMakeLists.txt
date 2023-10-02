@@ -25,6 +25,7 @@ set(SOURCES
     srcs/ChangeParametersDialog.cpp
     srcs/FilterDialog.cpp
     srcs/MainWindow.cpp
+    srcs/SortDialog.cpp
 )
 
 set(HEADERS
@@ -36,6 +37,7 @@ set(HEADERS
     incs/FilterDialog.hpp
     incs/MainWindow.hpp
     incs/TaskWidgwet.hpp
+    incs/SortDialog.hpp
 )
 
 qt_add_executable(TODO-list ${SOURCES} ${HEADERS})

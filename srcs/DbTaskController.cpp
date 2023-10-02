@@ -1,7 +1,7 @@
 #include "../incs/DbTaskController.hpp"
 
 #include <QMessageBox>
-#include <iostream>
+#include <algorithm>
 
 DbTaskController::DbTaskController() : m_db(QSqlDatabase::addDatabase("QPSQL"))
 {
@@ -158,4 +158,39 @@ void DbTaskController::setFilterVisibleAll()
 {
     for (const auto& [key, value] : m_taskMap.toStdMap())
         setFilterVisible(key);
+}
+
+static bool compareDateAsc(const std::pair<int32_t, Task>& a, const std::pair<int32_t, Task>& b)
+{
+    return a.second.m_deadline_date > b.second.m_deadline_date;
+}
+
+static bool compareDateDesc(const std::pair<int32_t, Task>& a, const std::pair<int32_t, Task>& b)
+{
+    return a.second.m_deadline_date < b.second.m_deadline_date;
+}
+
+const QVector<std::pair<int32_t, Task> > DbTaskController::getSortedTasks(sortOption opt)
+{
+    QVector<std::pair<int32_t, Task> > res;
+    res.reserve(m_taskMap.size());
+
+    for (const auto& [key, value] : m_taskMap.toStdMap())
+        res.push_back({key, value});
+
+    switch (opt)
+    {
+        case sortOption::DateAsc:
+            std::stable_sort(res.begin(), res.end(), compareDateAsc);
+            break;
+
+        case sortOption::DateDesc:
+            std::stable_sort(res.begin(), res.end(), compareDateDesc);
+            break;
+
+        default:
+            break;
+    }
+
+    return res;
 }

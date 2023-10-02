@@ -2,9 +2,11 @@
 #define DB_TASK_CONTROLLER_HPP
 
 #include <QMap>
+#include <QVector>
 #include <QtSql>
 
 #include "FilterParams.hpp"
+#include "SortDialog.hpp"
 #include "Task.hpp"
 
 class DbTaskController final
@@ -55,6 +57,8 @@ class DbTaskController final
     {
         return *(m_taskMap.find(task_id));
     }
+
+    const QVector<std::pair<int32_t, Task> > getSortedTasks(sortOption opt);
 
     void setStatus(int32_t task_id, const char* status_type);
 

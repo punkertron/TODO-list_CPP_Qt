@@ -5,6 +5,7 @@
 
 #include "../incs/AddTaskDialog.hpp"
 #include "../incs/FilterDialog.hpp"
+#include "../incs/SortDialog.hpp"
 #include "../incs/Task.hpp"
 #include "../incs/TaskWidgwet.hpp"
 
@@ -31,7 +32,7 @@ MainWindow::MainWindow(DbTaskController *dbTaskController, QWidget *parent) :
     widget->setLayout(vMainLayout);
 
     setMenu();
-    showTaskFromDb();
+    showAllTasks();
 }
 
 void MainWindow::setMenu()
@@ -71,6 +72,11 @@ void MainWindow::onAddNewTask(Task &task)
     m_dbTaskController->addNewTask(task);
     m_dbTaskController->setFilterVisible(m_dbTaskController->getLastTaskId());
 
+    if (m_isSorted)
+    {
+        deleteAllTasks();
+        showAllTasks();
+    }
     if (m_dbTaskController->getLastTask().m_isVisible)
         addTaskToScrollArea(m_dbTaskController->getLastTaskId());
 }
@@ -80,7 +86,7 @@ void MainWindow::setFilterView()
     m_dbTaskController->setFilterParams(m_filterParams);
     m_dbTaskController->setFilterVisibleAll();
     deleteAllTasks();
-    showTaskFromDb();
+    showAllTasks();
 }
 
 void MainWindow::onFilterTasks(FilterParams &newFilterParams)
@@ -97,18 +103,31 @@ void MainWindow::onFilterTasks(FilterParams &newFilterParams)
     else
     {
         if (!m_isFiltered)
+        {
+            m_isFiltered = true;
             createDefaultFilterButton();
-        m_isFiltered = true;
+        }
     }
 }
 
 void MainWindow::createDefaultFilterButton()
 {
     m_defaultFilter = new QPushButton("Reset filters", this);
-    m_hFilterSortLayout->addWidget(m_defaultFilter, 1, Qt::AlignLeft);
     m_defaultFilter->setStyleSheet("background-color: #00E6E6");
-
+    m_hFilterSortLayout->insertWidget(2, m_defaultFilter, 0, Qt::AlignLeft);
     connect(m_defaultFilter, &QPushButton::clicked, this, &MainWindow::onDefaultFilterClicked);
+}
+
+void MainWindow::createDefaultSortButton()
+{
+    m_defaultSort = new QPushButton("Reset sort", this);
+    if (!m_isFiltered)
+        m_hFilterSortLayout->insertWidget(2, m_defaultSort, 0, Qt::AlignLeft);
+    else
+        m_hFilterSortLayout->insertWidget(3, m_defaultSort, 0, Qt::AlignLeft);
+    m_defaultSort->setStyleSheet("background-color: #00E6E6");
+
+    connect(m_defaultSort, &QPushButton::clicked, this, &MainWindow::onDefaultSortClicked);
 }
 
 void MainWindow::onDefaultFilterClicked()
@@ -119,9 +138,29 @@ void MainWindow::onDefaultFilterClicked()
     removeDefaultFilterButton();
 }
 
+void MainWindow::onDefaultSortClicked()
+{
+    m_sortOpt  = sortOption::Default;
+    m_isSorted = false;
+    showSortedFilteredTasks();
+    removeDefaultSortButton();
+}
+
 void MainWindow::removeDefaultFilterButton()
 {
-    QLayoutItem *item = m_hFilterSortLayout->layout()->takeAt(3);
+    QLayoutItem *item = m_hFilterSortLayout->layout()->takeAt(2);
+    delete item->widget();
+    delete item;
+}
+
+void MainWindow::removeDefaultSortButton()
+{
+    QLayoutItem *item;
+
+    if (!m_isFiltered)
+        item = m_hFilterSortLayout->layout()->takeAt(2);
+    else
+        item = m_hFilterSortLayout->layout()->takeAt(3);
     delete item->widget();
     delete item;
 }
@@ -174,6 +213,46 @@ void MainWindow::setCommands()
     connect(addTaskButton, &QPushButton::clicked, this, &MainWindow::addNewTask);
     connect(deleteTask, &QPushButton::clicked, this, &MainWindow::deleteSelectedTasks);
     connect(filterButton, &QPushButton::clicked, this, &MainWindow::filterTasks);
+    connect(sortButton, &QPushButton::clicked, this, &MainWindow::sortTasks);
+}
+
+void MainWindow::showSortedFilteredTasks()
+{
+    deleteAllTasks();
+    showAllTasks();
+}
+
+void MainWindow::sortTasks()
+{
+    SortDialog dialog(m_sortOpt);
+    int result = dialog.exec();
+
+    if (result == QDialog::Accepted)
+    {
+        m_sortOpt = dialog.getSortOption();
+        if (!m_isSorted && m_sortOpt == sortOption::Default)
+            return;
+
+        if (m_isSorted)
+        {
+            if (m_sortOpt == sortOption::Default)
+            {
+                m_isSorted = false;
+                removeDefaultSortButton();
+                showSortedFilteredTasks();
+            }
+            else
+            {
+                showSortedFilteredTasks();
+            }
+        }
+        else
+        {
+            m_isSorted = true;
+            createDefaultSortButton();
+            showSortedFilteredTasks();
+        }
+    }
 }
 
 void MainWindow::deleteAllTasks()
@@ -221,18 +300,40 @@ void MainWindow::setScrollArea()
     m_scrollArea->setWidgetResizable(true);
 }
 
-void MainWindow::showTaskFromDb()
+void MainWindow::showAllTasks()
 {
-    for (const auto &[key, value] : m_dbTaskController->getMapTask().toStdMap())
+    if (!m_isSorted)
     {
-        if (value.m_isVisible)
-            addTaskToScrollArea(key);
+        for (const auto &[key, value] : m_dbTaskController->getMapTask().toStdMap())
+        {
+            if (value.m_isVisible)
+                addTaskToScrollArea(key);
+        }
+    }
+    else
+    {
+        for (const auto &[key, value] : m_dbTaskController->getSortedTasks(m_sortOpt))
+        {
+            if (value.m_isVisible)
+                addTaskToScrollArea(key);
+        }
     }
 }
 
 void MainWindow::addTaskToScrollArea(int32_t task_id)
 {
-    TaskWidget *taskWidget = new TaskWidget(task_id, m_dbTaskController /*, this*/);
+    TaskWidget *taskWidget = new TaskWidget(task_id, m_dbTaskController /*, this */);
     m_vScrollLayout->insertWidget(0, taskWidget, 0, Qt::AlignTop);
     m_vScrollLayout->addStretch();
+    connect(taskWidget, &TaskWidget::taskParamsChanged, this, &MainWindow::sortFilterAfterChangeTaskParams);
+}
+
+void MainWindow::sortFilterAfterChangeTaskParams(int32_t task_id)
+{
+    if (m_isSorted || m_isFiltered)
+    {
+        if (m_isFiltered)
+            m_dbTaskController->setFilterVisible(task_id);
+        showSortedFilteredTasks();
+    }
 }

@@ -86,6 +86,9 @@ class TaskWidget final : public QWidget
     {
         return m_task_id;
     }
+
+   signals:
+    void taskParamsChanged(int32_t task_id);  // if data changes we should update our view according filters
 };
 
 #endif  // TASK_WIDGET_HPP

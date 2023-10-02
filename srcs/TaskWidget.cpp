@@ -132,6 +132,7 @@ void TaskWidget::onResumeButtonClicked()
     const char* s = "in progress";
     m_dbTaskController->setStatus(m_task_id, s);
     fillColour();
+    emit taskParamsChanged(m_task_id);
 }
 
 void TaskWidget::onPauseButtonClicked()
@@ -139,6 +140,7 @@ void TaskWidget::onPauseButtonClicked()
     const char* s = "default";
     m_dbTaskController->setStatus(m_task_id, s);
     fillColour();
+    emit taskParamsChanged(m_task_id);
 }
 
 void TaskWidget::onDoneButtonClicked()
@@ -146,6 +148,7 @@ void TaskWidget::onDoneButtonClicked()
     const char* s = "done";
     m_dbTaskController->setStatus(m_task_id, s);
     fillColour();
+    emit taskParamsChanged(m_task_id);
 }
 
 void TaskWidget::fillColour()
@@ -207,6 +210,8 @@ void TaskWidget::onUserDataEntered(Task& task)
         }
     }
     fillColour();
+
+    emit taskParamsChanged(m_task_id);
 }
 
 void TaskWidget::contextMenuEvent(QContextMenuEvent* event)
