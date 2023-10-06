@@ -1,112 +1,115 @@
 # TODO List Application with Qt
 
-Добавление, изменение, удаление задач:
+Adding, modifying, deleting tasks:
 ![todo-part1.gif](assets/todo_part1.gif)
 
 <br>
 
-Фильтрация, сортировка. Перезапуск приложения (и сохранение задач):
+Filtering, sorting. Restarting the application (and saving tasks):
 ![todo-part2.gif](assets/todo_part2.gif)
 
 ---
 
-## Содержание
+## Table of Contents
 
-1. [Идея проекта](#идея-проекта)
-2. [Установка](#установка)
-3. [Тестирование](#тестирование)
-4. [Удаление задач из БД](#удаление-задач-из-бд)
-5. [Планы по доработке](#планы-по-доработке)
-
----
-
-### Идея проекта
-Необходимо реализовать небольшое приложение TODO-list с использованием Qt6. Пользователь должен иметь возможность добавлять/удалять задачи, менять их статус и фильтровать. Полное описание задачи доступно [**тут**](TASK.md).
-
-Для того, чтобы задачи не удалялись с закрытием приложения, я добавляю их в базу данных PostgreSQL.
-
-Из бонусов:
-- Сортировка задач.
-- Установка флажков "В работе", "На паузе" и "Выполнено".
-- Подсветка задач, в том числе просроченных.
-- Возможность удаления нескольких задач одновременно.
+1. [Project Idea](#project-idea)
+2. [Installation](#installation)
+3. [Testing](#testing)
+4. [Deleting tasks from DB](#deleting-tasks-from-db)
+5. [TODO](#todo)
 
 ---
 
-### Установка
-Разработка велась на **Debian 12** с использованием только стандартных пакетов.
+### Project Idea
+Need to implement a small TODO-list application using Qt6. User should be able to add/delete tasks, change their status and filter them. Full description of the task is available [**here**](TASK.md).
 
-**Важно**: команда `clang-format` автоматически вызывается первой при каждой сборке проекта. Её можно отключить, удалив строки 44-50 и 54 из [CMakeLists.txt](CMakeLists.txt)
+To ensure that tasks are not deleted when the application is closed, I add them to a PostgreSQL database.
 
-Сначала нужно подготовить БД для работы (иначе программа будет завершаться с ошибкой):
+From the bonuses:
+- Sorting tasks.
+- Checking the "In Progress", "Paused" and "Done" boxes.
+- Task highlighting, including overdue tasks.
+- Ability to delete several tasks at once.
+
+---
+
+### Installation
+The development was done on **Debian 12** using only standard packages.
+
+**Important**: the `clang-format` command is automatically called first every time a project is built. It can be disabled by removing lines 44-50 and 54 from [CMakeLists.txt](CMakeLists.txt).
+
+First you need to prepare the database for work (otherwise the programme will terminate with an error):
 ```bash
 bash init_db.sh
 ```
-И затем собрать проект с помощью Makefile, который уже запускает cmake:
+And then build the project with a Makefile that already runs cmake:
 ```bash
 make
 ```
-Запускать приложение нужно из корневой папки проекта:
+Run the application from the root folder of the project:
 ```bash
 ./TODO-list
 ```
 ---
 
-Также протестирован запуск программы и на **Ubuntu**. Для этого потребуется:
-- Во-первых, установить нужные пакеты:
+The programme has also been tested to run on **Ubuntu**. This will require:
+- Firstly, install the required packages:
 
 ```bash
 sudo apt install g++ make cmake postgresql qt6-base-dev libqt6sql6-psql clang-format libgl1-mesa-dev libglvnd-dev
 ```
-- Во-вторых, может потребоваться понизить версию `cmake_minimum_required`. А также в [CMakeLists.txt](CMakeLists.txt) заменить `qt_standard_project_setup()` на:
+- Second, you may need to downgrade `cmake_minimum_required`. And also in [CMakeLists.txt](CMakeLists.txt) replace `qt_standard_project_project_setup()` with:
 ```bash
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 ```
-- В-третьих, могут возникнуть проблемы с доступами у пользователя postgres. В таком случае выполнение `bash init_db.sh` будет сопровождаться странными сообщениями о Permission denied. Тогда надо построчно запустить каждую команду из файла [initial.sql](initial.sql):
+- Thirdly, there may be access problems with the postgres user. In this case, execution of `bash init_db.sh` will be accompanied by strange messages about Permission denied. Then you should run each command from the [initial.sql](initial.sql) file line by line:
 ```bash
 sudo -u postgres psql -q -d todo_db -c ¨CREATE SCHEMA todo AUTHORIZATION todo_user;¨
 ...
 sudo -u postgres psql -q -d todo_db -c ¨GRANT ALL ON ALL TABLES IN SCHEMA todo TO todo_user;¨
 ```
 
-Теперь приложение точно запустится!
+Now the app will launch for sure!
 
 ---
 
-### Тестирование
-- Есть возможность собрать приложение с санитайзерами `-fsanitize=address -fsanitize=leak -fsanitize=undefined` :
+### Testing
+- It is possible to build an application with `-fsanitize=address -fsanitize=leak -fsanitize=undefined` :
 ```bash
 make debug
 ```
-Создаётся программа с тем же именем - `TODO-list` 
+A programme is created with the same name - `TODO-list`.
 
 <br>
 
-- Для проекта (а именно для его части, которая отвечает за взаимодействие с БД, фильтрацией и сортировкой задач - **DbTaskController**) написаны тесты с использованием **QtTest**. Тесты находятся в папке [tests](tests). Сборка и запуск тестов:
+- Tests using **QtTest** are written for the project (namely for the part of the project that is responsible for interacting with the database, filtering and sorting tasks - **DbTaskController**). The tests are located in the [tests](tests) folder. Build and run the tests:
 
 ```bash
 make tests && ./TODO-tests
 ```
 
-Вывод:
+Output:
 
 ![test_output](assets/test_output.png)
 
 ---
 
-### Удаление задач из БД
-Все объекты базы данных, используемые в приложении, можно удалить следующей командой:
+### Deleting tasks from DB
+All database objects used in the application can be deleted with the following command:
 ```bash
 bash clear_db.sh
 ```
 
 ---
 
-### Планы по доработке
-Что можно добавить и что улучшить?
-- Написать больше тестов.
-- Проработать фильтрацию и сортировку задач. Текущий алгоритм не кажется самым эффективным (особенно сортировки, когда происходит полное удаление и создание задач при каждой операции).
-- Добавить перевод на другие языки.
-- Добавить поддержку других ОС.
+### TODO
+What could be added and what could be improved?
+- Write more tests.
+- Work out filtering and sorting of tasks. The current algorithm doesn't seem to be the most efficient (especially sorting, when there is a complete deletion and creation of tasks at each operation).
+- Add translation to other languages.
+- Add support for other OS.
+- Remove the incs folder.
+- Move visual design to ui files (to separate design from logic).
+- Move icons to resource files.
