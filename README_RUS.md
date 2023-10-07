@@ -1,5 +1,7 @@
 # TODO List Application with Qt
 
+[**ENG README**](README.md)
+
 Добавление, изменение, удаление задач:
 ![todo-part1.gif](assets/todo_part1.gif)
 

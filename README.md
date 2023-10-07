@@ -1,5 +1,7 @@
 # TODO List Application with Qt
 
+[**RUS README**](README_RUS.md)
+
 Adding, modifying, deleting tasks:
 ![todo-part1.gif](assets/todo_part1.gif)
 
