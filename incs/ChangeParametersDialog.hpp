@@ -27,6 +27,7 @@ class ChangeParametersDialog final : public QDialog
     ChangeParametersDialog(const ChangeParametersDialog& /*other*/)            = delete;
     ChangeParametersDialog(ChangeParametersDialog&& /*other*/)                 = delete;
     ChangeParametersDialog& operator=(const ChangeParametersDialog& /*other*/) = delete;
+    ChangeParametersDialog& operator=(ChangeParametersDialog&& /*other*/)      = delete;
 
     ChangeParametersDialog(const Task& task);
 

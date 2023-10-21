@@ -33,6 +33,7 @@ class FilterDialog final : public QDialog
     FilterDialog(const FilterDialog& /*other*/)            = delete;
     FilterDialog(FilterDialog&& /*other*/)                 = delete;
     FilterDialog& operator=(const FilterDialog& /*other*/) = delete;
+    FilterDialog& operator=(FilterDialog&& /*other*/)      = delete;
 
     FilterDialog(FilterParams* filterParams, QWidget* parent = nullptr);
 

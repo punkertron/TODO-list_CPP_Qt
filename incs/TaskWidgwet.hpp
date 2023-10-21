@@ -74,6 +74,7 @@ class TaskWidget final : public QWidget
     TaskWidget(const TaskWidget& /*other*/)            = delete;
     TaskWidget(TaskWidget&& /*other*/)                 = delete;
     TaskWidget& operator=(const TaskWidget& /*other*/) = delete;
+    TaskWidget& operator=(TaskWidget&& /*other*/)      = delete;
 
     TaskWidget(int32_t task_id, DbTaskController* dbTaskController, QWidget* parent = nullptr);
 

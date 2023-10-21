@@ -29,6 +29,7 @@ class AddTaskDialog final : public QDialog
     AddTaskDialog(const AddTaskDialog& /*other*/)            = delete;
     AddTaskDialog(AddTaskDialog&& /*other*/)                 = delete;
     AddTaskDialog& operator=(const AddTaskDialog& /*other*/) = delete;
+    AddTaskDialog& operator=(AddTaskDialog&& /*other*/)      = delete;
 
    signals:
     void userDataEntered(Task& task);

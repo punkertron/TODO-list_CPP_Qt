@@ -26,6 +26,7 @@ class SortDialog final : public QDialog
     SortDialog(const SortDialog& /*other*/)            = delete;
     SortDialog(SortDialog&& /*other*/)                 = delete;
     SortDialog& operator=(const SortDialog& /*other*/) = delete;
+    SortDialog& operator=(SortDialog&& /*other*/)      = delete;
 
     SortDialog(sortOption opt);
 

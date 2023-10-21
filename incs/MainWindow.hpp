@@ -64,6 +64,7 @@ class MainWindow final : public QMainWindow
     MainWindow(const MainWindow & /*other*/)            = delete;
     MainWindow(MainWindow && /*other*/)                 = delete;
     MainWindow &operator=(const MainWindow & /*other*/) = delete;
+    MainWindow &operator=(MainWindow && /*other*/)      = delete;
 
     MainWindow(DbTaskController *dbTaskController, QWidget *parent = nullptr);
 };

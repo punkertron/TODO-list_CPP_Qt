@@ -19,6 +19,7 @@ struct FilterParams
     FilterParams(const FilterParams& /*other*/)            = default;
     FilterParams(FilterParams&& /*other*/)                 = default;
     FilterParams& operator=(const FilterParams& /*other*/) = default;
+    FilterParams& operator=(FilterParams&& /*other*/)      = default;
 
     FilterParams(const QString& name, const QString& description, bool defaultTaskStatus, bool progressTaskStatus,
                  bool doneTaskStatus, const QDate& minDate, const QDate& maxDate) :

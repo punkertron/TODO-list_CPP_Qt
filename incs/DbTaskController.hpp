@@ -25,6 +25,7 @@ class DbTaskController final
     DbTaskController(const DbTaskController& /*other*/)            = delete;
     DbTaskController(DbTaskController&& /*other*/)                 = delete;
     DbTaskController& operator=(const DbTaskController& /*other*/) = delete;
+    DbTaskController& operator=(DbTaskController&& /*other*/)      = delete;
 
     void setFilterParams(const FilterParams& other)
     {

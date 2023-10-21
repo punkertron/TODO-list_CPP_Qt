@@ -18,6 +18,7 @@ struct Task
     Task(const Task& /*other*/)            = default;
     Task(Task&& /*other*/)                 = default;
     Task& operator=(const Task& /*other*/) = default;
+    Task& operator=(Task&& /*other*/)      = default;
 
     Task(const QString& name, const QString& description, const QDate& deadline_date,
          const QString& task_status = "default") :
